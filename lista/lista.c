@@ -1,8 +1,14 @@
 #include "lista.h"
 #include <stdlib.h>
+#include <stdio.h>
 
+/**
+ Inicializa una lista vacia.
+ Una referencia a la lista creada es referenciada en *L.
+**/
 void crear_lista(tLista * lista) {
-    (*lista) = (tLista) malloc(sizeof(struct celda));
+    //(*lista) = (tLista) malloc(sizeof(struct celda));
+    (*lista) = (tPosicion) malloc(sizeof(struct celda));
 
     (*lista)->elemento = NULL;
     (*lista)->siguiente = NULL;
@@ -20,6 +26,10 @@ void l_insertar(tLista l, tPosicion p, tElemento e){
     p -> siguiente = nueva_celda;
 }
 
+/**
+ Elimina la celda P de L. El elemento almacenado en la posicion P es eliminado mediante la funcion fEliminar parametrizada.
+ Si P es fin(L), finaliza indicando LST_POSICION_INVALIDA.
+**/
 void l_eliminar(tLista lista, tPosicion posicion, void (*fEliminar)(tElemento)) {
     tPosicion auxSiguiente = NULL;
 
@@ -62,6 +72,10 @@ void l_destruir(tLista * l, void (*fEliminar)(tElemento)){
     }
 }
 
+ /**
+ Recupera y retorna el elemento en la posicion P.
+ Si P es fin(L), finaliza indicando LST_POSICION_INVALIDA.
+**/
 tElemento l_recuperar(tLista l, tPosicion p) {
     if (p == l_fin(l)) {
         exit(LST_POSICION_INVALIDA);
@@ -78,6 +92,10 @@ tPosicion l_primera(tLista l){
     return l;
 }
 
+/**
+ Recupera y retorna la posicion siguiente a P en L.
+ Si P es fin(L), finaliza indicando LST_NO_EXISTE_SIGUIENTE.
+**/
 tPosicion l_siguiente(tLista l, tPosicion p) {
     if (p == l_fin(l)) {
         exit(LST_NO_EXISTE_SIGUIENTE);
@@ -97,11 +115,19 @@ tPosicion l_anterior(tLista l, tPosicion p){
         return p;
 }
 
+ /**
+ Recupera y retorna la ultima posicion de L.
+ Si L es vacia, primera(L) = ultima(L) = fin(L).
+**/
+// que pasa si   size == 1 ?????
+/*
 tPosicion l_ultima(tLista l) {
     if (l_longitud(l) != 0) {
         return l_fin(l);
     }
-}
+}*/
+
+
 
  /**
  Recupera y retorna la posición fin de L.
@@ -115,6 +141,9 @@ tPosicion l_fin(tLista l){
     return pos_actual;
 }
 
+/**
+ Retorna la longitud actual de la lista.
+**/
 int l_longitud(tLista l) {
     int contador = 0;
     tPosicion cursor = l->siguiente;
@@ -126,4 +155,20 @@ int l_longitud(tLista l) {
     }
 
     return contador;
+}
+
+
+int main(){
+    tLista* l = (tLista*) malloc(sizeof(tLista));
+    crear_lista(l);
+    int a=1;
+    int b=2;
+    int c=3;
+    int d=4;
+    l_insertar(*l, l_primera(*l), &a);
+    l_insertar(*l, l_primera(*l), &b);
+    int valor=*l_recuperar(*l, l_primera(*l));
+    printf("primero: %i", valor);
+    ;
+    return 0;
 }
