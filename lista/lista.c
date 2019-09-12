@@ -1,6 +1,13 @@
 #include "lista.h"
 #include <stdlib.h>
 
+void crear_lista(tLista * lista) {
+    (*lista) = (tLista) malloc(sizeof(struct celda));
+
+    (*lista)->elemento = NULL;
+    (*lista)->siguiente = NULL;
+}
+
 /**
  Inserta el elemento E, en la posición P, en L.
  Con L = A,B,C,D y la posición P direccionando C, luego:
@@ -13,6 +20,24 @@ void l_insertar(tLista l, tPosicion p, tElemento e){
     p -> siguiente = nueva_celda;
 }
 
+void l_eliminar(tLista lista, tPosicion posicion, void (*fEliminar)(tElemento)) {
+    tPosicion auxSiguiente = NULL;
+
+    if (posicion == l_fin(lista)) {
+        exit(LST_POSICION_INVALIDA);
+    }
+
+    fEliminar(posicion->siguiente->elemento);
+
+    posicion->siguiente->elemento = NULL;
+
+    auxSiguiente = posicion->siguiente->siguiente;
+    posicion->siguiente->siguiente = NULL;
+
+    free(posicion->siguiente);
+
+    posicion->siguiente = auxSiguiente;
+}
 
 /**
  Destruye la lista L, elimininando cada una de sus celdas. Los elementos almacenados en las celdas son eliminados mediante la función fEliminar parametrizada.
@@ -37,6 +62,13 @@ void l_destruir(tLista * l, void (*fEliminar)(tElemento)){
     }
 }
 
+tElemento l_recuperar(tLista l, tPosicion p) {
+    if (p == l_fin(l)) {
+        exit(LST_POSICION_INVALIDA);
+    }
+
+    return p->siguiente->elemento;
+}
 
 /**
  Recupera y retorna la primera posición de L.
@@ -46,6 +78,13 @@ tPosicion l_primera(tLista l){
     return l;
 }
 
+tPosicion l_siguiente(tLista l, tPosicion p) {
+    if (p == l_fin(l)) {
+        exit(LST_NO_EXISTE_SIGUIENTE);
+    }
+
+    return p->siguiente;
+}
 
 /**
  Recupera y retorna la posición anterior a P en L.
@@ -58,6 +97,11 @@ tPosicion l_anterior(tLista l, tPosicion p){
         return p;
 }
 
+tPosicion l_ultima(tLista l) {
+    if (l_longitud(l) != 0) {
+        return l_fin(l);
+    }
+}
 
  /**
  Recupera y retorna la posición fin de L.
@@ -69,4 +113,17 @@ tPosicion l_fin(tLista l){
         pos_actual = pos_actual->siguiente;
     }
     return pos_actual;
+}
+
+int l_longitud(tLista l) {
+    int contador = 0;
+    tPosicion cursor = l->siguiente;
+
+    while (cursor != NULL) {
+        contador++;
+
+        cursor = cursor->siguiente;
+    }
+
+    return contador;
 }
