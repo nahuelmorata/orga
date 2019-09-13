@@ -7,7 +7,6 @@
  Una referencia a la lista creada es referenciada en *L.
 **/
 void crear_lista(tLista * lista) {
-    //(*lista) = (tLista) malloc(sizeof(struct celda));
     (*lista) = (tPosicion) malloc(sizeof(struct celda));
 
     (*lista)->elemento = NULL;
@@ -111,22 +110,30 @@ tPosicion l_siguiente(tLista l, tPosicion p) {
 tPosicion l_anterior(tLista l, tPosicion p){
     if(l_primera(l) == p)
         exit(LST_NO_EXISTE_ANTERIOR);
-    else
-        return p;
+    else{
+        tPosicion pos_actual = l; //primera posicion de la lista
+        while(pos_actual ->siguiente != p){
+            pos_actual = pos_actual->siguiente;
+        }
+        return pos_actual;
+    }
 }
 
  /**
  Recupera y retorna la ultima posicion de L.
  Si L es vacia, primera(L) = ultima(L) = fin(L).
 **/
-// que pasa si   size == 1 ?????
-/*
 tPosicion l_ultima(tLista l) {
-    if (l_longitud(l) != 0) {
-        return l_fin(l);
+    if(l->siguiente == NULL)
+        return l;
+    else{
+        tPosicion pos_actual = l; //primera posicion de la lista
+        while(pos_actual ->siguiente->siguiente != NULL){
+            pos_actual = pos_actual->siguiente;
+        }
+        return pos_actual;
     }
-}*/
-
+}
 
 
  /**
@@ -158,6 +165,12 @@ int l_longitud(tLista l) {
 }
 
 
+//TESTER
+
+void elim(tElemento e){
+    printf("Elemento eliminado\n");
+}
+
 int main(){
     tLista* l = (tLista*) malloc(sizeof(tLista));
     crear_lista(l);
@@ -165,10 +178,34 @@ int main(){
     int b=2;
     int c=3;
     int d=4;
-    l_insertar(*l, l_primera(*l), &a);
+
+    //insertar
+    l_insertar(*l, l_primera(*l), &c);
     l_insertar(*l, l_primera(*l), &b);
-    int valor=*l_recuperar(*l, l_primera(*l));
-    printf("primero: %i", valor);
-    ;
+    l_insertar(*l, l_primera(*l), &a);
+    l_insertar(*l, l_fin(*l), &d);
+
+    //recuperar y siguiente
+    int* valor= (int*) l_recuperar(*l, l_primera(*l));
+    printf("primero: %i\n", *valor);
+    valor= (int*) l_recuperar(*l, l_siguiente(*l, l_primera(*l)));
+    printf("segundo: %i\n", *valor);
+
+    //ultima
+    valor= (int*) l_recuperar(*l, l_ultima(*l));
+    printf("ultimo: %i\n\n", *valor);
+
+    //tamanio
+    printf("longitud: %i\n\n", l_longitud(*l));
+
+    //eliminar
+    l_eliminar(*l, l_primera(*l), elim);
+    valor= (int*) l_recuperar(*l, l_primera(*l));
+    printf("primero: %i\n", *valor);
+    printf("longitud: %i\n\n", l_longitud(*l));
+
+    //destruir
+    l_destruir(l, elim);
+
     return 0;
 }
