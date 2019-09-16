@@ -166,7 +166,7 @@ int l_longitud(tLista l) {
 
 
 //TESTER
-
+/*
 void elim(tElemento e){
     printf("Elemento eliminado\n");
 }
@@ -208,4 +208,4 @@ int main(){
     l_destruir(l, elim);
 
     return 0;
-}
+}*/
