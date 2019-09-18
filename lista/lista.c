@@ -69,6 +69,8 @@ void l_destruir(tLista * l, void (*fEliminar)(tElemento)){
         free(pos_actual);
         pos_actual = pos_aux;
     }
+
+    l = NULL;
 }
 
  /**
@@ -163,49 +165,3 @@ int l_longitud(tLista l) {
 
     return contador;
 }
-
-
-//TESTER
-/*
-void elim(tElemento e){
-    printf("Elemento eliminado\n");
-}
-
-int main(){
-    tLista* l = (tLista*) malloc(sizeof(tLista));
-    crear_lista(l);
-    int a=1;
-    int b=2;
-    int c=3;
-    int d=4;
-
-    //insertar
-    l_insertar(*l, l_primera(*l), &c);
-    l_insertar(*l, l_primera(*l), &b);
-    l_insertar(*l, l_primera(*l), &a);
-    l_insertar(*l, l_fin(*l), &d);
-
-    //recuperar y siguiente
-    int* valor= (int*) l_recuperar(*l, l_primera(*l));
-    printf("primero: %i\n", *valor);
-    valor= (int*) l_recuperar(*l, l_siguiente(*l, l_primera(*l)));
-    printf("segundo: %i\n", *valor);
-
-    //ultima
-    valor= (int*) l_recuperar(*l, l_ultima(*l));
-    printf("ultimo: %i\n\n", *valor);
-
-    //tamanio
-    printf("longitud: %i\n\n", l_longitud(*l));
-
-    //eliminar
-    l_eliminar(*l, l_primera(*l), elim);
-    valor= (int*) l_recuperar(*l, l_primera(*l));
-    printf("primero: %i\n", *valor);
-    printf("longitud: %i\n\n", l_longitud(*l));
-
-    //destruir
-    l_destruir(l, elim);
-
-    return 0;
-}*/
