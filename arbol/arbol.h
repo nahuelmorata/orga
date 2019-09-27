@@ -36,22 +36,23 @@ extern void crear_raiz(tArbol a, tElemento e);
 /**
  Inserta y retorna un nuevo nodo en A.
  El nuevo nodo se agrega en A como hijo de NP, hermano izquierdo de NH, y cuyo rotulo es E.
- Si NH es NULL, el nuevo nodo se agrega como primer hijo de NP.
+ Si NH es NULL, el nuevo nodo se agrega como ultimo hijo de NP.
  Si NH no corresponde a un nodo hijo de NP, finaliza indicando ARB_POSICION_INVALIDA.
  NP direcciona al nodo padre, mientras NH al nodo hermano derecho del nuevo nodo a insertar.
 **/
 extern tNodo a_insertar(tArbol a, tNodo np, tNodo nh, tElemento e);
 
 /**
- Elimina el nodo N de A. El elemento almacenado en el arbol es eliminado mediante la funcion fEliminar parametrizada.
+ Elimina el nodo N de A.
+ El elemento almacenado en el arbol es eliminado mediante la funcion fEliminar parametrizada.
  Si N es la raiz de A, y tiene un solo hijo, este pasa a ser la nueva raiz del arbol.
  Si N es la raiz de A, y a su vez tiene mas de un hijo, finaliza retornando ARB_OPERACION_INVALIDA.
  Si N no es la raiz de A y tiene hijos, estos pasan a ser hijos del padre de N, en el mismo orden y a partir de la posicion que ocupa N en la lista de hijos de su padre.
 **/
-extern void a_eliminar(tArbol a, tNodo pa, void (*fEliminar)(tElemento));
+extern void a_eliminar(tArbol a, tNodo n, void (*fEliminar)(tElemento));
 
 /**
- Destruye el arbol A, elimininando cada uno de sus nodos.
+ Destruye el arbol A, eliminando cada uno de sus nodos.
  Los elementos almacenados en el arbol son eliminados mediante la funcion fEliminar parametrizada.
 **/
 extern void a_destruir(tArbol * a, void (*fEliminar)(tElemento));
