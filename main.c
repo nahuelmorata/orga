@@ -3,6 +3,6 @@
 #include "lista/lista_test.c"
 
 int main() {
-    printf("Hello world!\n");
+    probar_lista();
     return 0;
 }
