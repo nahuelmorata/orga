@@ -103,17 +103,20 @@ void a_eliminar(tArbol a, tNodo n, void (*fEliminar)(tElemento)){
         tLista hermanos = n->padre->hijos;
         tPosicion hijo = l_primera(n->hijos);
         tPosicion posN = obtenerPosicion(n);
-        for(int i=0; i<cantHijos; i++){
+
+        while(l_siguiente(n->hijos, hijo) != l_fin(n->hijos)) {
             l_insertar(hermanos, posN, l_recuperar(hermanos, hijo));
+            hijo = l_siguiente(n->hijos, hijo);
         }
+
+        l_eliminar(hermanos, posN, &fEliminarAux);
     }
 
     fEliminar(n->elemento);
+    l_destruir(&n->hijos, &fEliminarAux);
     n->hijos = NULL;
     n->padre = NULL;
     free(n);
-
-    //n no puede destruir su lista de hijos xq se eliminan los tElementos
 }
 
 /**
@@ -172,11 +175,11 @@ void a_sub_arbol(tArbol a, tNodo n, tArbol * sa){
         tLista hermanos = n->padre->hijos;
         tPosicion nPos = obtenerPosicion(n);
         l_eliminar(hermanos, nPos, &fEliminarAux);
-        n->padre == NULL;
+        n->padre = NULL;
     }
 
     else{
-        a->raiz == NULL;
+        a->raiz = NULL;
     }
 }
 

@@ -5,7 +5,7 @@
 void eliminar(tElemento elemento);
 void mostrarLista(tLista lista);
 
-int main() {
+int probar_lista() {
     char *a, *b, *c, *d, *e;
 
     a = (char *)malloc(sizeof(char));
