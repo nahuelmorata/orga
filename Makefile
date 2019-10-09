@@ -18,7 +18,7 @@ arbol/%.o: arbol/%.c $(DEPS)
 	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
 
 libreria:
-	ld -g -o $(LIBRERIA) $(OBJECTSARBOL) $(OBJECTSLISTA) -shared
+	ld -g -o $(LIBRERIA) $(OBJECTSARBOL) $(OBJECTSLISTA) $(OBJECTSTEST) -shared
 
 build: $(OBJECTS) libreria
 	$(CC) $(CFLAGS) -o main.o -c main.c

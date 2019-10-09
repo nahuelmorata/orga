@@ -2,10 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
 void eliminarParaArbol(tElemento elemento);
-void mostrarPreorden(tArbol arbol, tNodo n);
-void mostrarPreordenRec(tArbol arbol, tNodo n, int cont);
+void mostrar_arbol(tArbol arbol);
+void mostrar_hijos(tLista hijos, int profundidad);
 
 int probar_arbol(){
 
@@ -35,7 +34,7 @@ int probar_arbol(){
     crear_arbol(&arbol);
     crear_raiz(arbol, a);
     tNodo raiz = a_raiz(arbol);
-    mostrarPreorden(arbol, raiz);
+    mostrar_arbol(arbol);
 
     /**
 
@@ -55,17 +54,17 @@ int probar_arbol(){
     printf("\nInserta 'b' y 'c' como hijos de la raiz:\n");
     a_insertar(arbol, raiz, NULL, b);
     a_insertar(arbol, raiz, NULL, c);
-    mostrarPreorden(arbol, raiz);
+    mostrar_arbol(arbol);
 
     printf("\nInserta 'd' y 'e' como hijos de 'b':\n");
     tNodo nodoB = l_recuperar(a_hijos(arbol, raiz), l_primera(a_hijos(arbol, raiz)));
     a_insertar(arbol, nodoB, NULL, d);
     a_insertar(arbol, nodoB, NULL, e);
-    mostrarPreorden(arbol, raiz);
+    mostrar_arbol(arbol);
 
     printf("\nInserta 'x' como hermano de 'b':\n");
     a_insertar(arbol, raiz, nodoB, x);
-    mostrarPreorden(arbol, raiz);
+    mostrar_arbol(arbol);
 
 
     tNodo nodoX = l_recuperar(a_hijos(arbol, raiz), l_primera(a_hijos(arbol, raiz)));
@@ -86,27 +85,27 @@ int probar_arbol(){
     printf("\nInserta 'y' y 'z' como hijos de 'x':\n");
     a_insertar(arbol, nodoX, NULL, y);
     a_insertar(arbol, nodoX, NULL, z);
-    mostrarPreorden(arbol, raiz);
+    mostrar_arbol(arbol);
 
 
     //Sub-Arbol
     printf("\nCrea un sub-arbol a partir de 'b':\n");
     tArbol subArbolB;
     a_sub_arbol(arbol, nodoB, &subArbolB);
-    mostrarPreorden(subArbolB, a_raiz(subArbolB));
-    mostrarPreorden(arbol, raiz);
+    mostrar_arbol(subArbolB);
+    mostrar_arbol(arbol);
 
     //Eliminar nodo intermedio
     printf("\nElimina 'x'; 'y' y 'z' pasan a ser hijos de 'a':\n");
     a_eliminar(arbol, nodoX, &eliminarParaArbol);
-    mostrarPreorden(arbol, raiz);
+    mostrar_arbol(arbol);
 
     //Eliminar nodo hoja, y luego raiz con un solo hijo
     printf("\nElimina 'd' del subarbol y luego elimina la raiz de este:\n");
     a_eliminar(subArbolB, l_recuperar(a_hijos(subArbolB, a_raiz(subArbolB)), l_primera(a_hijos(subArbolB, a_raiz(subArbolB)))), &eliminarParaArbol);
-    mostrarPreorden(subArbolB, a_raiz(subArbolB));
+    mostrar_arbol(subArbolB);
     a_eliminar(subArbolB, a_raiz(subArbolB), &eliminarParaArbol);
-    mostrarPreorden(subArbolB, a_raiz(subArbolB));
+    mostrar_arbol(subArbolB);
 
 
     //Destruir
@@ -118,28 +117,34 @@ int probar_arbol(){
     return 0;
 }
 
-void mostrarPreorden(tArbol arbol, tNodo n){
-    mostrarPreordenRec(arbol, n, 0);
-    printf("\n");
-}
-
-void mostrarPreordenRec(tArbol arbol, tNodo n, int cont){
-    char* valor = (char *) a_recuperar(arbol, n);
-    printf("[%i%c] ", cont++, *valor);
-
-    tLista hijos = a_hijos(arbol, n);
-    int cantHijos = l_longitud(hijos);
-
-    tPosicion hijoPos = l_primera(hijos);
-    tNodo hijo;
-    for(int i=0; i<cantHijos; i++){
-        hijo = l_recuperar(hijos, hijoPos);
-        mostrarPreordenRec(arbol, hijo, cont);
-        hijoPos = l_siguiente(hijos, hijoPos);
-    }
-}
-
 void eliminarParaArbol(tElemento elemento) {
     printf("Elemento eliminado: '%c'\n", *((char *)elemento));
     free(elemento);
+}
+
+void mostrar_arbol(tArbol arbol) {
+    printf("%c\n", *(char *)arbol->raiz->elemento);
+
+    mostrar_hijos(arbol->raiz->hijos, 1);
+}
+
+void mostrar_hijos(tLista hijos, int profundidad) {
+    tPosicion cursor = l_primera(hijos);
+
+    while (cursor != l_fin(hijos)) {
+        tNodo nodo_hijo = (tNodo) l_recuperar(hijos, cursor);
+
+        for (int i = 0; i < profundidad - 1; i++) {
+            printf("│   ");
+        }
+        printf("└──");
+
+        printf("%c\n", *(char *) nodo_hijo->elemento);
+
+        if (l_longitud(hijos) != 0) {
+            mostrar_hijos(nodo_hijo->hijos, profundidad + 1);
+        }
+
+        cursor = l_siguiente(hijos, cursor);
+    }
 }
