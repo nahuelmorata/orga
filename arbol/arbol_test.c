@@ -8,7 +8,7 @@ void eliminarParaArbol(tElemento elemento);
 void mostrarPreorden(tArbol arbol, tNodo n);
 void mostrarPreordenRec(tArbol arbol, tNodo n, int cont);
 
-int main(){
+int probar_arbol(){
 
     char *a, *b, *c, *d, *e, *x, *y, *z;
 
