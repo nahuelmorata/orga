@@ -109,6 +109,7 @@ void a_eliminar(tArbol a, tNodo n, void (*fEliminar)(tElemento)){
             hijo = l_recuperar(n->hijos, cursorHijo);
             hijo->padre = n->padre;
             l_insertar(hermanos, posN, hijo);
+            posN = l_siguiente(hermanos, posN);
             cursorHijo = l_siguiente(n->hijos, cursorHijo);
         }
 
