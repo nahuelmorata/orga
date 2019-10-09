@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "lista/lista_test.c"
-#include "arbol/arbol_test.c"
+
+void probar_lista();
+void probar_arbol();
 
 int main() {
     probar_arbol();

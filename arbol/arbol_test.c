@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "lista.h"
 
 void eliminarParaArbol(tElemento elemento);
 void mostrarPreorden(tArbol arbol, tNodo n);
@@ -68,11 +67,27 @@ int probar_arbol(){
     a_insertar(arbol, raiz, nodoB, x);
     mostrarPreorden(arbol, raiz);
 
-    printf("\nInserta 'y' y 'z' como hijos de 'x':\n");
+
     tNodo nodoX = l_recuperar(a_hijos(arbol, raiz), l_primera(a_hijos(arbol, raiz)));
+
+    //ERROR
+    //printf("CREAR RAIZ EN ARBOL NO VACIO - ARB_OPERACION_INVALIDA 10\n");
+    //crear_raiz(arbol, b);
+
+    //ERROR
+    //printf("INSERTAR NODO CON HERMANO DE DISTINTO PADRE - ARB_POSICION_INVALIDA 11\n");
+    //a_insertar(arbol, nodoX, nodoB, y);
+
+    //ERROR
+    //printf("ELIMINAR RAIZ CON MAS DE UN HIJO - ARB_OPERACION_INVALIDA 10\n");
+    //a_eliminar(arbol, a_raiz(arbol), &eliminarParaArbol);
+
+
+    printf("\nInserta 'y' y 'z' como hijos de 'x':\n");
     a_insertar(arbol, nodoX, NULL, y);
     a_insertar(arbol, nodoX, NULL, z);
     mostrarPreorden(arbol, raiz);
+
 
     //Sub-Arbol
     printf("\nCrea un sub-arbol a partir de 'b':\n");
@@ -81,10 +96,18 @@ int probar_arbol(){
     mostrarPreorden(subArbolB, a_raiz(subArbolB));
     mostrarPreorden(arbol, raiz);
 
-    //Eliminar
+    //Eliminar nodo intermedio
     printf("\nElimina 'x'; 'y' y 'z' pasan a ser hijos de 'a':\n");
-    a_eliminar(arbol, nodoX, &eliminarParaArbol); // ROMPE ALGO !!!!!!!!!!! la lista de hijos de z se hace nula (?)
-    mostrarPreorden(arbol, raiz);  // REVIENTA TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    a_eliminar(arbol, nodoX, &eliminarParaArbol);
+    mostrarPreorden(arbol, raiz);
+
+    //Eliminar nodo hoja, y luego raiz con un solo hijo
+    printf("\nElimina 'd' del subarbol y luego elimina la raiz de este:\n");
+    a_eliminar(subArbolB, l_recuperar(a_hijos(subArbolB, a_raiz(subArbolB)), l_primera(a_hijos(subArbolB, a_raiz(subArbolB)))), &eliminarParaArbol);
+    mostrarPreorden(subArbolB, a_raiz(subArbolB));
+    a_eliminar(subArbolB, a_raiz(subArbolB), &eliminarParaArbol);
+    mostrarPreorden(subArbolB, a_raiz(subArbolB));
+
 
     //Destruir
     printf("\nSe destruye el arbol:\n");
