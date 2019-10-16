@@ -11,6 +11,9 @@ Inicializa una nueva partida, indicando:
 **/
 void nueva_partida(tPartida * p, int modo_partida, int comienza, char * j1_nombre, char * j2_nombre){
     p = (tPartida*) malloc(sizeof(struct partida));
+    if(*p == NULL)
+        exit(PART_ERROR_MEMORIA);
+
     (*p)->modo_partida = modo_partida;
 
     if(comienza == PART_JUGADOR_RANDOM){
@@ -23,6 +26,8 @@ void nueva_partida(tPartida * p, int modo_partida, int comienza, char * j1_nombr
         (*p)->turno_de = comienza;
 
     (*p)->tablero = malloc(sizeof(struct tablero));
+    if(*p == NULL)
+        exit(PART_ERROR_MEMORIA);
     strcpy((*p)->nombre_jugador_1, j1_nombre);
     strcpy((*p)->nombre_jugador_2, j2_nombre);
 }
