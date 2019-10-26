@@ -37,7 +37,19 @@ Actualiza, si corresponde, el estado de la partida considerando que el jugador a
 En caso de que el movimiento a dicha posición sea posible, retorna PART_MOVIMIENTO_OK; en caso contrario, retorna PART_MOVIMIENTO_ERROR.
 Las posiciones (X,Y) deben corresponderse al rango [0-2]; X representa el número de fila, mientras Y el número de columna.
 **/
-int nuevo_movimiento(tPartida p, int mov_x, int mov_y){}
+int nuevo_movimiento(tPartida p, int mov_x, int mov_y){
+
+    if(mov_x < 0 || mov_x > 2 || mov_y < 0 || mov_y > 2 || p->tablero->grilla[mov_x][mov_y] == PART_JUGADOR_1 || p->tablero->grilla[mov_x][mov_y] == PART_JUGADOR_2)
+        return PART_MOVIMIENTO_ERROR;
+
+    if(p->turno_de == PART_JUGADOR_1)
+        p->tablero->grilla[mov_x][mov_y] = PART_JUGADOR_1;
+
+    else
+        p->tablero->grilla[mov_x][mov_y] = PART_JUGADOR_2;
+
+    return PART_MOVIMIENTO_OK;
+}
 
 /**
 Finaliza la partida referenciada por P, liberando toda la memoria utilizada.
