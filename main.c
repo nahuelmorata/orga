@@ -3,6 +3,8 @@
 
 #include "partida/partida.h";
 
+void mostrar_tablero(tTablero tablero);
+
 int main() {
     tPartida partida;
 
