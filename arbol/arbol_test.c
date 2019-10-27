@@ -66,6 +66,9 @@ int probar_arbol(){
     a_insertar(arbol, raiz, nodoB, x);
     mostrar_arbol(arbol);
 
+    printf("\nInserta 'z' como hermano de 'b':\n");
+    a_insertar(arbol, raiz, nodoB, z);
+    mostrar_arbol(arbol);
 
     tNodo nodoX = l_recuperar(a_hijos(arbol, raiz), l_primera(a_hijos(arbol, raiz)));
 
@@ -130,8 +133,9 @@ void mostrar_arbol(tArbol arbol) {
 
 void mostrar_hijos(tLista hijos, int profundidad) {
     tPosicion cursor = l_primera(hijos);
+    tPosicion fin = l_fin(hijos);
 
-    while (cursor != l_fin(hijos)) {
+    while (cursor != fin) {
         tNodo nodo_hijo = (tNodo) l_recuperar(hijos, cursor);
 
         for (int i = 0; i < profundidad - 1; i++) {

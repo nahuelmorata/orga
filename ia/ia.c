@@ -64,7 +64,7 @@ void proximo_movimiento(tBusquedaAdversaria b, int * x, int * y){
     tLista sucesores = a_hijos(b->arbol_busqueda, raiz);
     int mejor_valor = IA_INFINITO_NEG;
     int nuevo_valor;
-    tNodo mejor_sucesor;
+    tNodo mejor_sucesor = NULL;
     tPosicion fin = l_fin(sucesores);
     tPosicion cursor = l_primera(sucesores);
 
@@ -87,7 +87,12 @@ void proximo_movimiento(tBusquedaAdversaria b, int * x, int * y){
 /**
 >>>>>  A IMPLEMENTAR   <<<<<
 **/
-void destruir_busqueda_adversaria(tBusquedaAdversaria * b){}
+void destruir_busqueda_adversaria(tBusquedaAdversaria * b) {
+    a_destruir(&((*b)->arbol_busqueda), eliminar_tEstado);
+    free(b);
+
+    b = NULL;
+}
 
 // ===============================================================================================================
 // FUNCIONES Y PROCEDEMIENTOS AUXILIARES
@@ -173,7 +178,129 @@ Computa el valor de utilidad correspondiente al estado E, y la ficha correspondi
 - IA_PIERDE_MAX si el estado E refleja una jugada en el que el JUGADOR_MAX perdió la partida.
 - IA_NO_TERMINO en caso contrario.
 **/
-static int valor_utilidad(tEstado e, int jugador_max){}
+static int valor_utilidad(tEstado e, int jugador_max) {
+    int gano, perdio, grilla_llena = 1;
+
+    for (int i = 0; i < 3; i++) {
+        gano = 1;
+
+        // Revisa horizontales
+        for (int j = 0; j < 3; j++) {
+            if (e->grilla[i][j] != jugador_max) {
+                gano = 0;
+            }
+        }
+
+        // Revisa verticales
+        if (!gano) {
+            gano = 1;
+
+            for (int j = 0; j < 3; j++) {
+                if (e->grilla[j][i] != jugador_max) {
+                    gano = 0;
+                }
+            }
+        }
+
+        if (gano) {
+            return IA_GANA_MAX;
+        }
+    }
+
+    // Revisa diagonales
+    gano = 1;
+
+    for (int j = 0; j < 3; j++) {
+        if (e->grilla[j][j] != jugador_max) {
+            gano = 0;
+        }
+    }
+
+    if (gano) {
+        return IA_GANA_MAX;
+    }
+    
+    gano = 1;
+    for (int j = 0; j < 3; j++) {
+        if (e->grilla[j][2 - j] != jugador_max) {
+            gano = 0;
+        }
+    }
+
+    if (gano) {
+        return IA_GANA_MAX;
+    }
+
+    /**
+     * Si perdio
+     */
+    for (int i = 0; i < 3; i++) {
+        perdio = 1;
+
+        // Revisa horizontales
+        for (int j = 0; j < 3; j++) {
+            if (e->grilla[i][j] == jugador_max) {
+                perdio = 0;
+            }
+        }
+
+        // Revisa verticales
+        if (!perdio) {
+            perdio = 1;
+
+            for (int j = 0; j < 3; j++) {
+                if (e->grilla[j][i] == jugador_max) {
+                    perdio = 0;
+                }
+            }
+        }
+
+        if (perdio) {
+            return IA_PIERDE_MAX;
+        }
+    }
+
+    // Revisa diagonales
+    perdio = 1;
+
+    for (int j = 0; j < 3; j++) {
+        if (e->grilla[j][j] == jugador_max) {
+            perdio = 0;
+        }
+    }
+
+    if (perdio) {
+        return IA_PIERDE_MAX;
+    }
+    
+    perdio = 1;
+    for (int j = 0; j < 3; j++) {
+        if (e->grilla[j][2 - j] == jugador_max) {
+            perdio = 0;
+        }
+    }
+
+    if (perdio) {
+        return IA_PIERDE_MAX;
+    }
+
+    /**
+     * Si empato
+     */
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (e->grilla[i][j] != PART_JUGADOR_1 && e->grilla[i][j] != PART_JUGADOR_2) {
+                grilla_llena = 0;
+            }
+        }
+    }
+
+    if (grilla_llena) {
+        return IA_EMPATA_MAX;
+    }
+
+    return IA_NO_TERMINO;
+}
 
 /**
 >>>>>  A IMPLEMENTAR   <<<<<
@@ -211,7 +338,19 @@ Inicializa y retorna un nuevo estado que resulta de la clonación del estado E.
 Para esto copia en el estado a retornar los valores actuales de la grilla del estado E, como su valor
 de utilidad.
 **/
-static tEstado clonar_estado(tEstado e){}
+static tEstado clonar_estado(tEstado e) {
+    tEstado clon = (tEstado) malloc(sizeof(struct estado));
+
+    for(int i = 0; i < 3; i++) {
+        for (int j = 0; i < 3; j++) {
+            clon->grilla[i][j] = e->grilla[i][j];
+        }
+    }
+
+    clon->utilidad = e->utilidad;
+
+    return clon;
+}
 
 /**
 Computa la diferencia existente entre dos estados.
