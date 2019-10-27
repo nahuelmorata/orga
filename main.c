@@ -89,3 +89,32 @@ void elegir_quien_comienza(int modo_juego, int *quien_comienza) {
         break;
     }
 }
+
+void mostrar_tablero(tTablero tablero) {
+    printf("-------------\n");
+
+    for (int i = 0; i < 3; i++) {
+        printf("|");
+        for (int j = 0; j < 3; j++) {
+            printf(" ");
+
+            if (tablero->grilla[i][j] == PART_JUGADOR_1) {
+                printf("X");
+            }
+
+            if (tablero->grilla[i][j] == PART_JUGADOR_2) {
+                printf("O");
+            }
+
+            if (tablero->grilla[i][j] != PART_JUGADOR_1 && tablero->grilla[i][j] != PART_JUGADOR_2) {
+                printf(" ");
+            }
+
+            printf(" |");
+        }
+
+        printf("\n");
+    }
+
+    printf("-------------\n");
+}
