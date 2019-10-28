@@ -10,7 +10,7 @@ Inicializa una nueva partida, indicando:
  - Nombre que representa al Jugador 2.
 **/
 void nueva_partida(tPartida * p, int modo_partida, int comienza, char * j1_nombre, char * j2_nombre){
-    p = (tPartida*) malloc(sizeof(struct partida));
+    *p = (tPartida) malloc(sizeof(struct partida));
     if(*p == NULL)
         exit(PART_ERROR_MEMORIA);
 
@@ -25,9 +25,12 @@ void nueva_partida(tPartida * p, int modo_partida, int comienza, char * j1_nombr
     else
         (*p)->turno_de = comienza;
 
+    (*p)->estado = PART_EN_JUEGO;
+
     (*p)->tablero = malloc(sizeof(struct tablero));
     if((*p)->tablero == NULL)
         exit(PART_ERROR_MEMORIA);
+
     strcpy((*p)->nombre_jugador_1, j1_nombre);
     strcpy((*p)->nombre_jugador_2, j2_nombre);
 }
@@ -39,14 +42,14 @@ Las posiciones (X,Y) deben corresponderse al rango [0-2]; X representa el númer
 **/
 int nuevo_movimiento(tPartida p, int mov_x, int mov_y){
 
-    if(mov_x < 0 || mov_x > 2 || mov_y < 0 || mov_y > 2 || p->tablero->grilla[mov_x][mov_y] == PART_JUGADOR_1 || p->tablero->grilla[mov_x][mov_y] == PART_JUGADOR_2)
+    if(mov_x < 0 || mov_x > 2 || mov_y < 0 || mov_y > 2 || p->tablero->grilla[mov_y][mov_x] == PART_JUGADOR_1 || p->tablero->grilla[mov_y][mov_x] == PART_JUGADOR_2)
         return PART_MOVIMIENTO_ERROR;
 
     if(p->turno_de == PART_JUGADOR_1)
-        p->tablero->grilla[mov_x][mov_y] = PART_JUGADOR_1;
+        p->tablero->grilla[mov_y][mov_x] = PART_JUGADOR_1;
 
     else
-        p->tablero->grilla[mov_x][mov_y] = PART_JUGADOR_2;
+        p->tablero->grilla[mov_y][mov_x] = PART_JUGADOR_2;
 
     return PART_MOVIMIENTO_OK;
 }
