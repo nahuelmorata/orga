@@ -83,13 +83,6 @@ void proximo_movimiento(tBusquedaAdversaria b, int * x, int * y){
         }
 
         diferencia_estados(estado_actual, (tEstado) a_recuperar(b->arbol_busqueda, mejor_sucesor), x, y);
-
-/*
-        tArbol nuevo_arbol;
-        a_sub_arbol(b->arbol_busqueda, mejor_sucesor, &nuevo_arbol);
-        a_destruir(&(b->arbol_busqueda), &eliminar_tEstado);
-        b->arbol_busqueda = nuevo_arbol;
-        */
 }
 
 /**
