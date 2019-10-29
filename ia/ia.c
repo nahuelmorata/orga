@@ -60,30 +60,33 @@ void crear_busqueda_adversaria(tBusquedaAdversaria * b, tPartida p){
  En caso contrario, se indicará un movimiento que lleva a MAX a perder la partida.
 **/
 void proximo_movimiento(tBusquedaAdversaria b, int * x, int * y){
-    tNodo raiz = a_raiz(b->arbol_busqueda);
-    tEstado estado_actual = (tEstado) a_recuperar(b->arbol_busqueda, raiz);
-    tLista sucesores = a_hijos(b->arbol_busqueda, raiz);
-    int mejor_valor = IA_INFINITO_NEG;
-    int nuevo_valor;
-    tNodo mejor_sucesor = NULL;
-    tPosicion fin = l_fin(sucesores);
-    tPosicion cursor = l_primera(sucesores);
 
-    while(cursor != fin){
-        nuevo_valor = valor(b->arbol_busqueda, l_recuperar(sucesores, cursor), 1);
-        if(mejor_valor < nuevo_valor){
-            mejor_sucesor = l_recuperar(sucesores, cursor);
-            mejor_valor = nuevo_valor;
+
+        tNodo raiz = a_raiz(b->arbol_busqueda);
+        tEstado estado_actual = (tEstado) a_recuperar(b->arbol_busqueda, raiz);
+        tLista sucesores = a_hijos(b->arbol_busqueda, raiz);
+        int mejor_valor = IA_INFINITO_NEG;
+        int nuevo_valor;
+        tNodo mejor_sucesor = NULL;
+        tPosicion fin = l_fin(sucesores);
+        tPosicion cursor = l_primera(sucesores);
+
+        while(cursor != fin){
+            nuevo_valor = valor(b->arbol_busqueda, l_recuperar(sucesores, cursor), 1);
+            if(mejor_valor < nuevo_valor){
+                mejor_sucesor = l_recuperar(sucesores, cursor);
+                mejor_valor = nuevo_valor;
+            }
+            cursor = l_siguiente(sucesores, cursor);
         }
-        cursor = l_siguiente(sucesores, cursor);
-    }
 
-    diferencia_estados(estado_actual, (tEstado) a_recuperar(b->arbol_busqueda, mejor_sucesor), x, y);
+        diferencia_estados(estado_actual, (tEstado) a_recuperar(b->arbol_busqueda, mejor_sucesor), x, y);
 
-    tArbol nuevo_arbol;
-    a_sub_arbol(b->arbol_busqueda, mejor_sucesor, &nuevo_arbol);
-    a_destruir(&(b->arbol_busqueda), &eliminar_tEstado);
-    b->arbol_busqueda = nuevo_arbol;
+
+        tArbol nuevo_arbol;
+        a_sub_arbol(b->arbol_busqueda, mejor_sucesor, &nuevo_arbol);
+        a_destruir(&(b->arbol_busqueda), &eliminar_tEstado);
+        b->arbol_busqueda = nuevo_arbol;
 }
 
 /**
@@ -132,7 +135,6 @@ static void crear_sucesores_min_max(tArbol a, tNodo n, int es_max, int alpha, in
 
         if(es_max == 1){
             sucesores = estados_sucesores(estado, jugador_max);
-            alpha = estado->utilidad;
             cursor = l_primera(sucesores);
             fin = l_fin(sucesores);
             while(cursor != fin){
@@ -141,36 +143,39 @@ static void crear_sucesores_min_max(tArbol a, tNodo n, int es_max, int alpha, in
                 a_insertar(a, n, NULL, sucesor);
                 crear_sucesores_min_max(a, l_recuperar(a_hijos(a, n), l_ultima(a_hijos(a, n))), 0, alpha, beta, jugador_max, jugador_min);
                 alpha = (alpha > sucesor->utilidad) ? alpha : sucesor->utilidad;
-                if(alpha>=beta)
+                if(alpha>=beta){
                     break;
+                }
                 cursor = l_siguiente(sucesores, cursor);
             }
-            while(cursor != l_fin(sucesores)) {//elimino los estados que fueron "podados"
-                l_eliminar(sucesores, cursor, &eliminar_tEstado);
-                //cursor = l_siguiente(sucesores, cursor);
-            }
+            estado->utilidad = alpha;
         }
 
         else{
             sucesores = estados_sucesores(estado, jugador_min);
-            beta = estado->utilidad;
             cursor = l_primera(sucesores);
             fin = l_fin(sucesores);
             while(cursor != fin){
                 sucesor = (tEstado) l_recuperar(sucesores, cursor);
                 sucesor->utilidad = valor_utilidad(sucesor, jugador_max);
                 a_insertar(a, n, NULL, sucesor);
-                crear_sucesores_min_max(a, l_recuperar(a_hijos(a, n), l_ultima(a_hijos(a, n))), 0, alpha, beta, jugador_max, jugador_min);
+                crear_sucesores_min_max(a, l_recuperar(a_hijos(a, n), l_ultima(a_hijos(a, n))), 1, alpha, beta, jugador_max, jugador_min);
                 beta = (beta < sucesor->utilidad) ? beta : sucesor->utilidad;
-                if(alpha>=beta)
+                if(alpha>=beta){
                     break;
+                }
                 cursor = l_siguiente(sucesores, cursor);
             }
-            while(cursor != fin) //elimino los estados que fueron "podados"
-                l_eliminar(sucesores, cursor, &eliminar_tEstado);
+            estado->utilidad = beta;
+        }
+/*
+        while(cursor != l_fin(sucesores)) {//elimino los estados que fueron "podados"
+            l_eliminar(sucesores, cursor, &eliminar_tEstado);
+            cursor = l_siguiente(sucesores, cursor);
         }
 
         l_destruir(&sucesores, &eliminar_vacio);
+*/
     }
 }
 
@@ -183,127 +188,58 @@ Computa el valor de utilidad correspondiente al estado E, y la ficha correspondi
 - IA_NO_TERMINO en caso contrario.
 **/
 static int valor_utilidad(tEstado e, int jugador_max) {
-    int gano, perdio, grilla_llena = 1;
 
-    for (int i = 0; i < 3; i++) {
-        gano = 1;
+    int grilla_llena=1;
+    int jugador_min = (jugador_max == PART_JUGADOR_1) ? PART_JUGADOR_2 : PART_JUGADOR_1;
 
-        // Revisa horizontales
-        for (int j = 0; j < 3; j++) {
-            if (e->grilla[i][j] != jugador_max) {
-                gano = 0;
-            }
-        }
+    if(
+       //horizontales
+       (e->grilla[0][0] == jugador_max && e->grilla[0][1] == jugador_max && e->grilla[0][2] == jugador_max) ||
+       (e->grilla[1][0] == jugador_max && e->grilla[1][1] == jugador_max && e->grilla[1][2] == jugador_max) ||
+       (e->grilla[2][0] == jugador_max && e->grilla[2][1] == jugador_max && e->grilla[2][2] == jugador_max) ||
 
-        // Revisa verticales
-        if (!gano) {
-            gano = 1;
+       //verticales
+       (e->grilla[0][0] == jugador_max && e->grilla[1][0] == jugador_max && e->grilla[2][0] == jugador_max) ||
+       (e->grilla[0][1] == jugador_max && e->grilla[1][1] == jugador_max && e->grilla[2][1] == jugador_max) ||
+       (e->grilla[0][2] == jugador_max && e->grilla[1][2] == jugador_max && e->grilla[2][2] == jugador_max) ||
 
+       //diagonales
+       (e->grilla[0][0] == jugador_max && e->grilla[1][1] == jugador_max && e->grilla[2][2] == jugador_max) ||
+       (e->grilla[2][0] == jugador_max && e->grilla[1][1] == jugador_max && e->grilla[0][2] == jugador_max)
+       )
+       return IA_GANA_MAX;
+
+    else if(
+       //horizontales
+       (e->grilla[0][0] == jugador_min && e->grilla[0][1] == jugador_min && e->grilla[0][2] == jugador_min) ||
+       (e->grilla[1][0] == jugador_min && e->grilla[1][1] == jugador_min && e->grilla[1][2] == jugador_min) ||
+       (e->grilla[2][0] == jugador_min && e->grilla[2][1] == jugador_min && e->grilla[2][2] == jugador_min) ||
+
+       //verticales
+       (e->grilla[0][0] == jugador_min && e->grilla[1][0] == jugador_min && e->grilla[2][0] == jugador_min) ||
+       (e->grilla[0][1] == jugador_min && e->grilla[1][1] == jugador_min && e->grilla[2][1] == jugador_min) ||
+       (e->grilla[0][2] == jugador_min && e->grilla[1][2] == jugador_min && e->grilla[2][2] == jugador_min) ||
+
+       //diagonales
+       (e->grilla[0][0] == jugador_min && e->grilla[1][1] == jugador_min && e->grilla[2][2] == jugador_min) ||
+       (e->grilla[2][0] == jugador_min && e->grilla[1][1] == jugador_min && e->grilla[0][2] == jugador_min)
+       )
+       return IA_PIERDE_MAX;
+
+    else{
+        for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                if (e->grilla[j][i] != jugador_max) {
-                    gano = 0;
-                }
+                if (e->grilla[i][j] != PART_JUGADOR_1 && e->grilla[i][j] != PART_JUGADOR_2)
+                    grilla_llena = 0;
             }
         }
 
-        if (gano) {
-            return IA_GANA_MAX;
-        }
+        if(grilla_llena == 0)
+            return IA_NO_TERMINO;
+        else
+            return IA_EMPATA_MAX;
     }
 
-    // Revisa diagonales
-    gano = 1;
-
-    for (int j = 0; j < 3; j++) {
-        if (e->grilla[j][j] != jugador_max) {
-            gano = 0;
-        }
-    }
-
-    if (gano) {
-        return IA_GANA_MAX;
-    }
-
-    gano = 1;
-    for (int j = 0; j < 3; j++) {
-        if (e->grilla[j][2 - j] != jugador_max) {
-            gano = 0;
-        }
-    }
-
-    if (gano) {
-        return IA_GANA_MAX;
-    }
-
-    /**
-     * Si perdio
-     */
-    for (int i = 0; i < 3; i++) {
-        perdio = 1;
-
-        // Revisa horizontales
-        for (int j = 0; j < 3; j++) {
-            if (e->grilla[i][j] == jugador_max) {
-                perdio = 0;
-            }
-        }
-
-        // Revisa verticales
-        if (!perdio) {
-            perdio = 1;
-
-            for (int j = 0; j < 3; j++) {
-                if (e->grilla[j][i] == jugador_max) {
-                    perdio = 0;
-                }
-            }
-        }
-
-        if (perdio) {
-            return IA_PIERDE_MAX;
-        }
-    }
-
-    // Revisa diagonales
-    perdio = 1;
-
-    for (int j = 0; j < 3; j++) {
-        if (e->grilla[j][j] == jugador_max) {
-            perdio = 0;
-        }
-    }
-
-    if (perdio) {
-        return IA_PIERDE_MAX;
-    }
-
-    perdio = 1;
-    for (int j = 0; j < 3; j++) {
-        if (e->grilla[j][2 - j] == jugador_max) {
-            perdio = 0;
-        }
-    }
-
-    if (perdio) {
-        return IA_PIERDE_MAX;
-    }
-
-    /**
-     * Si empato
-     */
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            if (e->grilla[i][j] != PART_JUGADOR_1 && e->grilla[i][j] != PART_JUGADOR_2) {
-                grilla_llena = 0;
-            }
-        }
-    }
-
-    if (grilla_llena) {
-        return IA_EMPATA_MAX;
-    }
-
-    return IA_NO_TERMINO;
 }
 
 /**
@@ -366,8 +302,8 @@ static void diferencia_estados(tEstado anterior, tEstado nuevo, int * x, int * y
     for(i=0; i<3 && !hallado; i++){
         for(j=0; j<3 && !hallado; j++){
             if (anterior->grilla[i][j] != nuevo->grilla[i][j]){
-                *x = i;
-                *y = j;
+                *x = j;
+                *y = i;
                 hallado = 1;
             }
         }

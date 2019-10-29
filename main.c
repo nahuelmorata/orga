@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "ia/ia.h"
 #include "partida/partida.h"
@@ -10,8 +11,11 @@ void elegir_quien_comienza(int modo_juego, int *quien_comienza);
 void chequear_estado(tPartida partida);
 void jugar_partida_2jugadores(tPartida partida);
 void jugar_partida_vs_ia(tPartida partida);
+void actualizar_arbol(tBusquedaAdversaria busqueda_ia, int x, int y);
+static void eliminar_tEstado(tElemento e);
 
 int main() {
+    srand(time(0));
     tPartida partida;
     int jugar_de_nuevo = 1;
     char leido;
@@ -20,7 +24,7 @@ int main() {
         printf("Juego de Ta-Te-Ti\n");
 
         iniciar_juego(&partida);
-    
+
         printf("\nQuiere jugar de nuevo? (S/N): ");
         scanf("%c", &leido);
 
@@ -88,7 +92,7 @@ void iniciar_juego(tPartida *partida) {
 void elegir_quien_comienza(int modo_juego, int *quien_comienza) {
     int comienza = 0;
 
-    while (comienza < 1 || comienza > 3) {
+    while (comienza < 1 || comienza > 2) {
         printf("\nQuien comienza?\n");
 
         printf("1) Jugador 1\n");
@@ -197,16 +201,17 @@ void jugar_partida_vs_ia(tPartida partida) {
                 printf("Jugador 1 ingrese su jugada (x,y): ");
                 scanf("%d,%d", &x, &y);
             } else {
-                if (busqueda_ia == NULL) {
+                if(busqueda_ia == NULL)
                     crear_busqueda_adversaria(&busqueda_ia, partida);
-                }
-
                 proximo_movimiento(busqueda_ia, &x, &y);
-            }                
+            }
 
             mov_ok = nuevo_movimiento(partida, x, y);
         } while(mov_ok != PART_MOVIMIENTO_OK);
 
+        if(partida->turno_de == PART_JUGADOR_1 && busqueda_ia != NULL){
+            actualizar_arbol(busqueda_ia, x, y);
+        }
 
         mostrar_tablero(partida);
 
@@ -224,6 +229,32 @@ void jugar_partida_vs_ia(tPartida partida) {
         printf("\nJUGADOR 1 GANO\n");
     else if(partida->estado == PART_GANA_JUGADOR_2)
         printf("\nJUGADOR IA GANO\n");
+}
+
+
+void actualizar_arbol(tBusquedaAdversaria busqueda_ia, int x, int y){
+    tNodo raiz = busqueda_ia->arbol_busqueda->raiz, nodo_cursor;
+    tLista sucesores = a_hijos(busqueda_ia->arbol_busqueda, raiz);
+    tEstado estado_cursor;
+    tPosicion cursor = l_primera(sucesores), fin = l_fin(sucesores);
+
+    while(cursor != fin){
+        nodo_cursor = l_recuperar(sucesores, cursor);
+        estado_cursor = a_recuperar(busqueda_ia->arbol_busqueda, nodo_cursor);
+        if(estado_cursor->grilla[y][x] == PART_JUGADOR_1 || estado_cursor->grilla[y][x] == PART_JUGADOR_2)
+            break;
+        cursor = l_siguiente(sucesores, cursor);
+    }
+
+    tArbol nuevo_arbol;
+    a_sub_arbol(busqueda_ia->arbol_busqueda, nodo_cursor, &nuevo_arbol);
+    a_destruir(&(busqueda_ia->arbol_busqueda), &eliminar_tEstado);
+    busqueda_ia->arbol_busqueda = nuevo_arbol;
+}
+
+static void eliminar_tEstado(tElemento e){
+    tEstado estado_borrar = (tEstado) e;
+    free(estado_borrar);
 }
 
 void chequear_estado(tPartida partida){
