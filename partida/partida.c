@@ -31,6 +31,12 @@ void nueva_partida(tPartida * p, int modo_partida, int comienza, char * j1_nombr
     if((*p)->tablero == NULL)
         exit(PART_ERROR_MEMORIA);
 
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            (*p)->tablero->grilla[i][j] = PART_SIN_MOVIMIENTO;
+        }
+    }
+
     strcpy((*p)->nombre_jugador_1, j1_nombre);
     strcpy((*p)->nombre_jugador_2, j2_nombre);
 }
@@ -59,9 +65,7 @@ Finaliza la partida referenciada por P, liberando toda la memoria utilizada.
 **/
 void finalizar_partida(tPartida * p) {
     free((*p)->tablero);
-    free((*p)->nombre_jugador_1);
-    free((*p)->nombre_jugador_2);
 
-    free(p);
+    free(*p);
     p = NULL;
 }

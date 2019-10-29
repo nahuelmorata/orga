@@ -20,20 +20,22 @@ int main() {
     int jugar_de_nuevo = 1;
     char leido;
 
+    printf("Juego de Ta-Te-Ti\n");
     while (jugar_de_nuevo) {
-        printf("Juego de Ta-Te-Ti\n");
-
         iniciar_juego(&partida);
 
         printf("\nQuiere jugar de nuevo? (S/N): ");
-        scanf("%c", &leido);
+        scanf("%s", &leido);
 
-        if (leido == 'N') {
+        if (leido == 'N' || leido == 'n') {
             jugar_de_nuevo = 0;
         }
-
-        finalizar_partida(&partida);
+        if (leido == 'S' || leido == 's') { // De la nada se cambia jugar_de_nuevo a 0
+            jugar_de_nuevo = 1;
+        }
     }
+
+    finalizar_partida(&partida);
 
     return 0;
 }
@@ -92,7 +94,7 @@ void iniciar_juego(tPartida *partida) {
 void elegir_quien_comienza(int modo_juego, int *quien_comienza) {
     int comienza = 0;
 
-    while (comienza < 1 || comienza > 2) {
+    while (comienza < 1 || comienza > 3) {
         printf("\nQuien comienza?\n");
 
         printf("1) Jugador 1\n");
@@ -229,11 +231,12 @@ void jugar_partida_vs_ia(tPartida partida) {
         printf("\nJUGADOR 1 GANO\n");
     else if(partida->estado == PART_GANA_JUGADOR_2)
         printf("\nJUGADOR IA GANO\n");
+    destruir_busqueda_adversaria(&busqueda_ia);
 }
 
 
 void actualizar_arbol(tBusquedaAdversaria busqueda_ia, int x, int y){
-    tNodo raiz = busqueda_ia->arbol_busqueda->raiz, nodo_cursor;
+    tNodo raiz = busqueda_ia->arbol_busqueda->raiz, nodo_cursor = NULL;
     tLista sucesores = a_hijos(busqueda_ia->arbol_busqueda, raiz);
     tEstado estado_cursor;
     tPosicion cursor = l_primera(sucesores), fin = l_fin(sucesores);

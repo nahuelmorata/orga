@@ -94,7 +94,7 @@ void proximo_movimiento(tBusquedaAdversaria b, int * x, int * y){
 **/
 void destruir_busqueda_adversaria(tBusquedaAdversaria * b) {
     a_destruir(&((*b)->arbol_busqueda), eliminar_tEstado);
-    free(b);
+    free(*b);
 
     b = NULL;
 }
@@ -168,14 +168,12 @@ static void crear_sucesores_min_max(tArbol a, tNodo n, int es_max, int alpha, in
             }
             estado->utilidad = beta;
         }
-/*
+
         while(cursor != l_fin(sucesores)) {//elimino los estados que fueron "podados"
             l_eliminar(sucesores, cursor, &eliminar_tEstado);
-            cursor = l_siguiente(sucesores, cursor);
         }
 
         l_destruir(&sucesores, &eliminar_vacio);
-*/
     }
 }
 
@@ -229,7 +227,7 @@ static int valor_utilidad(tEstado e, int jugador_max) {
     else{
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                if (e->grilla[i][j] != PART_JUGADOR_1 && e->grilla[i][j] != PART_JUGADOR_2)
+                if (e->grilla[i][j] == PART_SIN_MOVIMIENTO)
                     grilla_llena = 0;
             }
         }
@@ -258,7 +256,7 @@ static tLista estados_sucesores(tEstado e, int ficha_jugador){
     tEstado nuevo_estado;
     for(int i=0; i<3; i++){
         for(int j=0; j<3; j++){
-            if(e->grilla[i][j] != PART_JUGADOR_1 && e->grilla[i][j] != PART_JUGADOR_2){
+            if(e->grilla[i][j] == PART_SIN_MOVIMIENTO){
                 nuevo_estado = clonar_estado(e);
                 nuevo_estado->grilla[i][j] = ficha_jugador;
                 if(rand() % 2 == 0)
