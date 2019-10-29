@@ -79,27 +79,28 @@ void chequear_estado(tPartida partida){
     int ganador, grilla_llena=1;
     tTablero tablero = partida->tablero;
 
-    if(
+    if( (tablero->grilla[0][0] == PART_JUGADOR_1 || tablero->grilla[0][0] == PART_JUGADOR_2) && (
        (tablero->grilla[0][0] == tablero->grilla[0][1] && tablero->grilla[0][0] == tablero->grilla[0][2]) ||
        (tablero->grilla[0][0] == tablero->grilla[1][1] && tablero->grilla[0][0] == tablero->grilla[2][2]) ||
-       (tablero->grilla[0][0] == tablero->grilla[1][0] && tablero->grilla[0][0] == tablero->grilla[2][0]) )
+       (tablero->grilla[0][0] == tablero->grilla[1][0] && tablero->grilla[0][0] == tablero->grilla[2][0])) )
        ganador = tablero->grilla[0][0];
 
     else if
-       (tablero->grilla[1][0] == tablero->grilla[1][1] && tablero->grilla[1][0] == tablero->grilla[1][2])
+       ((tablero->grilla[1][0] == PART_JUGADOR_1 || tablero->grilla[1][0] == PART_JUGADOR_2) &&
+       (tablero->grilla[1][0] == tablero->grilla[1][1] && tablero->grilla[1][0] == tablero->grilla[1][2]))
        ganador = tablero->grilla[1][0];
 
-    else if(
+    else if((tablero->grilla[2][0] == PART_JUGADOR_1 || tablero->grilla[2][0] == PART_JUGADOR_2) && (
        (tablero->grilla[2][0] == tablero->grilla[2][1] && tablero->grilla[2][0] == tablero->grilla[2][2]) ||
-       (tablero->grilla[2][0] == tablero->grilla[1][1] && tablero->grilla[2][0] == tablero->grilla[0][2]) )
+       (tablero->grilla[2][0] == tablero->grilla[1][1] && tablero->grilla[2][0] == tablero->grilla[0][2])) )
        ganador = tablero->grilla[2][0];
 
-    else if
-       (tablero->grilla[0][1] == tablero->grilla[1][1] && tablero->grilla[0][1] == tablero->grilla[2][1])
+    else if ((tablero->grilla[0][1] == PART_JUGADOR_1 || tablero->grilla[0][1] == PART_JUGADOR_2) &&
+       (tablero->grilla[0][1] == tablero->grilla[1][1] && tablero->grilla[0][1] == tablero->grilla[2][1]))
        ganador = tablero->grilla[0][1];
 
-    else if
-       (tablero->grilla[0][2] == tablero->grilla[1][2] && tablero->grilla[0][2] == tablero->grilla[2][2])
+    else if ((tablero->grilla[0][0] == PART_JUGADOR_1 || tablero->grilla[0][0] == PART_JUGADOR_2) &&
+       (tablero->grilla[0][2] == tablero->grilla[1][2] && tablero->grilla[0][2] == tablero->grilla[2][2]))
        ganador = tablero->grilla[0][2];
 
     else
