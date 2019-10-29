@@ -169,8 +169,12 @@ static void crear_sucesores_min_max(tArbol a, tNodo n, int es_max, int alpha, in
             estado->utilidad = beta;
         }
 
-        while(cursor != l_fin(sucesores)) {//elimino los estados que fueron "podados"
-            l_eliminar(sucesores, cursor, &eliminar_tEstado);
+        if (cursor != fin) {
+            cursor = l_siguiente(sucesores, cursor);
+
+            while(cursor != l_fin(sucesores)) {//elimino los estados que fueron "podados"
+                l_eliminar(sucesores, cursor, &eliminar_tEstado);
+            }
         }
 
         l_destruir(&sucesores, &eliminar_vacio);
