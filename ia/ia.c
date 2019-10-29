@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "lista.h"
 #include "arbol.h"
@@ -74,6 +75,7 @@ void proximo_movimiento(tBusquedaAdversaria b, int * x, int * y){
             mejor_sucesor = l_recuperar(sucesores, cursor);
             mejor_valor = nuevo_valor;
         }
+        cursor = l_siguiente(sucesores, cursor);
     }
 
     diferencia_estados(estado_actual, (tEstado) a_recuperar(b->arbol_busqueda, mejor_sucesor), x, y);
@@ -143,8 +145,10 @@ static void crear_sucesores_min_max(tArbol a, tNodo n, int es_max, int alpha, in
                     break;
                 cursor = l_siguiente(sucesores, cursor);
             }
-            while(cursor != fin) //elimino los estados que fueron "podados"
+            while(cursor != l_fin(sucesores)) {//elimino los estados que fueron "podados"
                 l_eliminar(sucesores, cursor, &eliminar_tEstado);
+                //cursor = l_siguiente(sucesores, cursor);
+            }
         }
 
         else{
@@ -219,7 +223,7 @@ static int valor_utilidad(tEstado e, int jugador_max) {
     if (gano) {
         return IA_GANA_MAX;
     }
-    
+
     gano = 1;
     for (int j = 0; j < 3; j++) {
         if (e->grilla[j][2 - j] != jugador_max) {
@@ -272,7 +276,7 @@ static int valor_utilidad(tEstado e, int jugador_max) {
     if (perdio) {
         return IA_PIERDE_MAX;
     }
-    
+
     perdio = 1;
     for (int j = 0; j < 3; j++) {
         if (e->grilla[j][2 - j] == jugador_max) {
@@ -342,7 +346,7 @@ static tEstado clonar_estado(tEstado e) {
     tEstado clon = (tEstado) malloc(sizeof(struct estado));
 
     for(int i = 0; i < 3; i++) {
-        for (int j = 0; i < 3; j++) {
+        for (int j = 0; j < 3; j++) {
             clon->grilla[i][j] = e->grilla[i][j];
         }
     }

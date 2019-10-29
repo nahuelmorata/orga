@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "ia/ia.h"
 #include "partida/partida.h"
 
 void mostrar_tablero(tPartida partida);
@@ -8,19 +9,33 @@ void iniciar_juego(tPartida *partida);
 void elegir_quien_comienza(int modo_juego, int *quien_comienza);
 void chequear_estado(tPartida partida);
 void jugar_partida_2jugadores(tPartida partida);
+void jugar_partida_vs_ia(tPartida partida);
 
 int main() {
     tPartida partida;
+    int jugar_de_nuevo = 1;
+    char leido;
 
-    printf("Juego de Ta-Te-Ti\n");
+    while (jugar_de_nuevo) {
+        printf("Juego de Ta-Te-Ti\n");
 
-    iniciar_juego(&partida);
+        iniciar_juego(&partida);
+    
+        printf("\nQuiere jugar de nuevo? (S/N): ");
+        scanf("%c", &leido);
+
+        if (leido == 'N') {
+            jugar_de_nuevo = 0;
+        }
+
+        finalizar_partida(&partida);
+    }
 
     return 0;
 }
 
 void iniciar_juego(tPartida *partida) {
-    int modo_juego = 0, modo_juego_partida, comienza;
+    int modo_juego = 0, modo_juego_partida = 0, comienza;
     char nombre_jugador_1[100], nombre_jugador_2[100];
 
     while (modo_juego < 1 || modo_juego > 2) {
@@ -33,39 +48,47 @@ void iniciar_juego(tPartida *partida) {
     }
 
     printf("\nIngrese el nombre del jugador 1(max 100) (X): ");
-    scanf("%100s", nombre_jugador_1);
+    scanf("%s", nombre_jugador_1);
 
     if (modo_juego == 1) {
         printf("Ingrese el nombre del jugador 2(max 100) (O): ");
-        scanf("%100s", nombre_jugador_2);
+        scanf("%s", nombre_jugador_2);
     } else {
-        printf("Ingrese el nombre del jugador ia(max 100): ");
-        scanf("%100s", nombre_jugador_2);
+        printf("Ingrese el nombre del jugador ia(max 100) (O): ");
+        scanf("%s", nombre_jugador_2);
     }
 
     elegir_quien_comienza(modo_juego, &comienza);
 
     switch (modo_juego) {
-    case 1:
-        modo_juego_partida = PART_MODO_USUARIO_VS_USUARIO;
-        break;
-    case 2:
-        modo_juego_partida = PART_MODO_USUARIO_VS_AGENTE_IA;
-        break;
-    default:
-        break;
+        case 1:
+            modo_juego_partida = PART_MODO_USUARIO_VS_USUARIO;
+            break;
+        case 2:
+            modo_juego_partida = PART_MODO_USUARIO_VS_AGENTE_IA;
+            break;
+        default:
+            break;
     }
 
     nueva_partida(partida, modo_juego_partida, comienza, nombre_jugador_1, nombre_jugador_2);
 
-    jugar_partida_2jugadores(*partida);
-
+    switch (modo_juego_partida) {
+        case PART_MODO_USUARIO_VS_USUARIO:
+            jugar_partida_2jugadores(*partida);
+            break;
+        case PART_MODO_USUARIO_VS_AGENTE_IA:
+            jugar_partida_vs_ia(*partida);
+            break;
+        default:
+            break;
+    }
 }
 
 void elegir_quien_comienza(int modo_juego, int *quien_comienza) {
-    int comienza;
+    int comienza = 0;
 
-    while (comienza < 1 || comienza > 2) {
+    while (comienza < 1 || comienza > 3) {
         printf("\nQuien comienza?\n");
 
         printf("1) Jugador 1\n");
@@ -79,21 +102,23 @@ void elegir_quien_comienza(int modo_juego, int *quien_comienza) {
 
         printf("3) Jugador al azar\n");
 
+        printf("Elija opcion(1-3): ");
+
         scanf("%d", &comienza);
     }
 
     switch (comienza) {
-    case 1:
-        *quien_comienza = PART_JUGADOR_1;
-        break;
-    case 2:
-        *quien_comienza = PART_JUGADOR_2;
-        break;
-    case 3:
-        *quien_comienza = PART_JUGADOR_RANDOM;
-        break;
-    default:
-        break;
+        case 1:
+            *quien_comienza = PART_JUGADOR_1;
+            break;
+        case 2:
+            *quien_comienza = PART_JUGADOR_2;
+            break;
+        case 3:
+            *quien_comienza = PART_JUGADOR_RANDOM;
+            break;
+        default:
+            break;
     }
 }
 
@@ -160,6 +185,45 @@ void jugar_partida_2jugadores(tPartida partida){
         printf("\nJUGADOR 1 GANO\n");
     else if(partida->estado == PART_GANA_JUGADOR_2)
         printf("\nJUGADOR 2 GANO\n");
+}
+
+void jugar_partida_vs_ia(tPartida partida) {
+    int x, y, mov_ok;
+    tBusquedaAdversaria busqueda_ia = NULL;
+
+    while(partida->estado == PART_EN_JUEGO) {
+        do{
+            if(partida->turno_de == PART_JUGADOR_1) {
+                printf("Jugador 1 ingrese su jugada (x,y): ");
+                scanf("%d,%d", &x, &y);
+            } else {
+                if (busqueda_ia == NULL) {
+                    crear_busqueda_adversaria(&busqueda_ia, partida);
+                }
+
+                proximo_movimiento(busqueda_ia, &x, &y);
+            }                
+
+            mov_ok = nuevo_movimiento(partida, x, y);
+        } while(mov_ok != PART_MOVIMIENTO_OK);
+
+
+        mostrar_tablero(partida);
+
+        chequear_estado(partida);
+
+        if(partida->turno_de == PART_JUGADOR_1)
+            partida->turno_de = PART_JUGADOR_2;
+        else
+            partida->turno_de = PART_JUGADOR_1;
+    }
+
+    if(partida->estado == PART_EMPATE)
+        printf("\nPARTIDA TERMINO EN EMPATE\n");
+    else if(partida->estado == PART_GANA_JUGADOR_1)
+        printf("\nJUGADOR 1 GANO\n");
+    else if(partida->estado == PART_GANA_JUGADOR_2)
+        printf("\nJUGADOR IA GANO\n");
 }
 
 void chequear_estado(tPartida partida){
