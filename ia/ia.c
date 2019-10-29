@@ -66,27 +66,30 @@ void proximo_movimiento(tBusquedaAdversaria b, int * x, int * y){
         tEstado estado_actual = (tEstado) a_recuperar(b->arbol_busqueda, raiz);
         tLista sucesores = a_hijos(b->arbol_busqueda, raiz);
         int mejor_valor = IA_INFINITO_NEG;
-        int nuevo_valor;
+        int utilidad_cursor;
         tNodo mejor_sucesor = NULL;
         tPosicion fin = l_fin(sucesores);
         tPosicion cursor = l_primera(sucesores);
+        tNodo nodo_cursor;
 
         while(cursor != fin){
-            nuevo_valor = valor(b->arbol_busqueda, l_recuperar(sucesores, cursor), 1);
-            if(mejor_valor < nuevo_valor){
-                mejor_sucesor = l_recuperar(sucesores, cursor);
-                mejor_valor = nuevo_valor;
+            nodo_cursor = (tNodo) l_recuperar(sucesores, cursor);
+            utilidad_cursor = ((tEstado) a_recuperar(b->arbol_busqueda, nodo_cursor))->utilidad;
+            if(mejor_valor < utilidad_cursor){
+                mejor_sucesor = nodo_cursor;
+                mejor_valor = utilidad_cursor;
             }
             cursor = l_siguiente(sucesores, cursor);
         }
 
         diferencia_estados(estado_actual, (tEstado) a_recuperar(b->arbol_busqueda, mejor_sucesor), x, y);
 
-
+/*
         tArbol nuevo_arbol;
         a_sub_arbol(b->arbol_busqueda, mejor_sucesor, &nuevo_arbol);
         a_destruir(&(b->arbol_busqueda), &eliminar_tEstado);
         b->arbol_busqueda = nuevo_arbol;
+        */
 }
 
 /**
@@ -129,9 +132,9 @@ static void crear_sucesores_min_max(tArbol a, tNodo n, int es_max, int alpha, in
     tEstado estado = (tEstado) a_recuperar(a,n);
     tEstado sucesor;
     tPosicion cursor, fin;
+    tLista sucesores;
 
     if(estado->utilidad == IA_NO_TERMINO){
-        tLista sucesores;
 
         if(es_max == 1){
             sucesores = estados_sucesores(estado, jugador_max);

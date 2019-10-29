@@ -2,6 +2,8 @@
 #include <string.h>
 #include "partida.h"
 
+void chequear_estado(tPartida partida);
+
 /**
 Inicializa una nueva partida, indicando:
  - Modo de partida (Usuario vs. Usuario o Usuario vs. Agente IA).
@@ -57,6 +59,8 @@ int nuevo_movimiento(tPartida p, int mov_x, int mov_y){
     else
         p->tablero->grilla[mov_y][mov_x] = PART_JUGADOR_2;
 
+    chequear_estado(p);
+
     return PART_MOVIMIENTO_OK;
 }
 
@@ -68,4 +72,60 @@ void finalizar_partida(tPartida * p) {
 
     free(*p);
     p = NULL;
+}
+
+
+void chequear_estado(tPartida partida){
+    int ganador, grilla_llena=1;
+    tTablero tablero = partida->tablero;
+
+    if(
+       (tablero->grilla[0][0] == tablero->grilla[0][1] && tablero->grilla[0][0] == tablero->grilla[0][2]) ||
+       (tablero->grilla[0][0] == tablero->grilla[1][1] && tablero->grilla[0][0] == tablero->grilla[2][2]) ||
+       (tablero->grilla[0][0] == tablero->grilla[1][0] && tablero->grilla[0][0] == tablero->grilla[2][0]) )
+       ganador = tablero->grilla[0][0];
+
+    else if
+       (tablero->grilla[1][0] == tablero->grilla[1][1] && tablero->grilla[1][0] == tablero->grilla[1][2])
+       ganador = tablero->grilla[1][0];
+
+    else if(
+       (tablero->grilla[2][0] == tablero->grilla[2][1] && tablero->grilla[2][0] == tablero->grilla[2][2]) ||
+       (tablero->grilla[2][0] == tablero->grilla[1][1] && tablero->grilla[2][0] == tablero->grilla[0][2]) )
+       ganador = tablero->grilla[2][0];
+
+    else if
+       (tablero->grilla[0][1] == tablero->grilla[1][1] && tablero->grilla[0][1] == tablero->grilla[2][1])
+       ganador = tablero->grilla[0][1];
+
+    else if
+       (tablero->grilla[0][2] == tablero->grilla[1][2] && tablero->grilla[0][2] == tablero->grilla[2][2])
+       ganador = tablero->grilla[0][2];
+
+    else
+        ganador=0;
+
+
+
+    if(ganador == PART_JUGADOR_1)
+        partida->estado = PART_GANA_JUGADOR_1;
+
+    else if(ganador == PART_JUGADOR_2)
+        partida->estado = PART_GANA_JUGADOR_2;
+
+    else{
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (tablero->grilla[i][j] != PART_JUGADOR_1 && tablero->grilla[i][j] != PART_JUGADOR_2)
+                    grilla_llena = 0;
+            }
+        }
+
+        if(grilla_llena == 0)
+            partida->estado = PART_EN_JUEGO;
+        else
+            partida->estado = PART_EMPATE;
+    }
+
+
 }

@@ -8,7 +8,6 @@
 void mostrar_tablero(tPartida partida);
 void iniciar_juego(tPartida *partida);
 void elegir_quien_comienza(int modo_juego, int *quien_comienza);
-void chequear_estado(tPartida partida);
 void jugar_partida_2jugadores(tPartida partida);
 void jugar_partida_vs_ia(tPartida partida);
 void actualizar_arbol(tBusquedaAdversaria busqueda_ia, int x, int y);
@@ -176,7 +175,6 @@ void jugar_partida_2jugadores(tPartida partida){
 
         mostrar_tablero(partida);
 
-        chequear_estado(partida);
 
         if(partida->turno_de == PART_JUGADOR_1)
             partida->turno_de = PART_JUGADOR_2;
@@ -203,26 +201,28 @@ void jugar_partida_vs_ia(tPartida partida) {
                 printf("Jugador 1 ingrese su jugada (x,y): ");
                 scanf("%d,%d", &x, &y);
             } else {
-                if(busqueda_ia == NULL)
-                    crear_busqueda_adversaria(&busqueda_ia, partida);
+                //if(busqueda_ia == NULL)
+                crear_busqueda_adversaria(&busqueda_ia, partida);
                 proximo_movimiento(busqueda_ia, &x, &y);
             }
 
             mov_ok = nuevo_movimiento(partida, x, y);
         } while(mov_ok != PART_MOVIMIENTO_OK);
-
+/*
         if(partida->turno_de == PART_JUGADOR_1 && busqueda_ia != NULL){
             actualizar_arbol(busqueda_ia, x, y);
         }
+*/
 
         mostrar_tablero(partida);
 
-        chequear_estado(partida);
 
         if(partida->turno_de == PART_JUGADOR_1)
             partida->turno_de = PART_JUGADOR_2;
-        else
+        else{
+            destruir_busqueda_adversaria(&busqueda_ia);
             partida->turno_de = PART_JUGADOR_1;
+        }
     }
 
     if(partida->estado == PART_EMPATE)
@@ -231,7 +231,6 @@ void jugar_partida_vs_ia(tPartida partida) {
         printf("\nJUGADOR 1 GANO\n");
     else if(partida->estado == PART_GANA_JUGADOR_2)
         printf("\nJUGADOR IA GANO\n");
-    destruir_busqueda_adversaria(&busqueda_ia);
 }
 
 
@@ -260,57 +259,4 @@ static void eliminar_tEstado(tElemento e){
     free(estado_borrar);
 }
 
-void chequear_estado(tPartida partida){
-    int ganador, grilla_llena=1;
-    tTablero tablero = partida->tablero;
 
-    if(
-       (tablero->grilla[0][0] == tablero->grilla[0][1] && tablero->grilla[0][0] == tablero->grilla[0][2]) ||
-       (tablero->grilla[0][0] == tablero->grilla[1][1] && tablero->grilla[0][0] == tablero->grilla[2][2]) ||
-       (tablero->grilla[0][0] == tablero->grilla[1][0] && tablero->grilla[0][0] == tablero->grilla[2][0]) )
-       ganador = tablero->grilla[0][0];
-
-    else if
-       (tablero->grilla[1][0] == tablero->grilla[1][1] && tablero->grilla[1][0] == tablero->grilla[1][2])
-       ganador = tablero->grilla[1][0];
-
-    else if(
-       (tablero->grilla[2][0] == tablero->grilla[2][1] && tablero->grilla[2][0] == tablero->grilla[2][2]) ||
-       (tablero->grilla[2][0] == tablero->grilla[1][1] && tablero->grilla[2][0] == tablero->grilla[0][2]) )
-       ganador = tablero->grilla[2][0];
-
-    else if
-       (tablero->grilla[0][1] == tablero->grilla[1][1] && tablero->grilla[0][1] == tablero->grilla[2][1])
-       ganador = tablero->grilla[0][1];
-
-    else if
-       (tablero->grilla[0][2] == tablero->grilla[1][2] && tablero->grilla[0][2] == tablero->grilla[2][2])
-       ganador = tablero->grilla[0][2];
-
-    else
-        ganador=0;
-
-
-
-    if(ganador == PART_JUGADOR_1)
-        partida->estado = PART_GANA_JUGADOR_1;
-
-    else if(ganador == PART_JUGADOR_2)
-        partida->estado = PART_GANA_JUGADOR_2;
-
-    else{
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (tablero->grilla[i][j] != PART_JUGADOR_1 && tablero->grilla[i][j] != PART_JUGADOR_2)
-                    grilla_llena = 0;
-            }
-        }
-
-        if(grilla_llena == 0)
-            partida->estado = PART_EN_JUEGO;
-        else
-            partida->estado = PART_EMPATE;
-    }
-
-
-}
