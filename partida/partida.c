@@ -50,6 +50,7 @@ Las posiciones (X,Y) deben corresponderse al rango [0-2]; X representa el númer
 **/
 int nuevo_movimiento(tPartida p, int mov_x, int mov_y){
 
+    //verifica que las coordenadas recibidas esten dentro del rango y no esten ocupadas
     if(mov_x < 0 || mov_x > 2 || mov_y < 0 || mov_y > 2 || p->tablero->grilla[mov_y][mov_x] == PART_JUGADOR_1 || p->tablero->grilla[mov_y][mov_x] == PART_JUGADOR_2)
         return PART_MOVIMIENTO_ERROR;
 
@@ -74,7 +75,13 @@ void finalizar_partida(tPartida * p) {
     p = NULL;
 }
 
+// ---------------------
 
+
+
+/**
+ Verifica y setea el estado actual de la partida
+*/
 void chequear_estado(tPartida partida){
     int ganador, grilla_llena=1;
     tTablero tablero = partida->tablero;

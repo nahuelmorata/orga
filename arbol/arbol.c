@@ -3,7 +3,7 @@
 
 void (*fEliminarUsuario)(tElemento);
 
-// Declaracion de funciones privadas
+/// Declaracion de funciones privadas
 
 tPosicion obtenerPosicion(tNodo n);
 void eliminar_nodo(tElemento elemento);
@@ -53,7 +53,7 @@ void crear_raiz(tArbol arbol, tElemento elemento) {
 **/
 tNodo a_insertar(tArbol arbol, tNodo nodoPadre, tNodo nodoHermano, tElemento elemento) {
     tNodo nodoNuevo;
-    if (nodoHermano != NULL) {
+    if (nodoHermano != NULL) { //si recibe un hermano derecho
         if (nodoHermano->padre != nodoPadre) {
             exit(ARB_POSICION_INVALIDA);
         }
@@ -63,7 +63,8 @@ tNodo a_insertar(tArbol arbol, tNodo nodoPadre, tNodo nodoHermano, tElemento ele
         tPosicion posicionHermano = obtenerPosicion(nodoHermano);
 
         l_insertar(nodoPadre->hijos, posicionHermano, nodoNuevo);
-    } else {
+
+    } else {//si se inserta al final
         nodoNuevo = crear_nodo(nodoPadre, elemento);
 
         l_insertar(nodoPadre->hijos, l_fin(nodoPadre->hijos), nodoNuevo);
@@ -82,7 +83,7 @@ tNodo a_insertar(tArbol arbol, tNodo nodoPadre, tNodo nodoHermano, tElemento ele
 void a_eliminar(tArbol a, tNodo n, void (*fEliminar)(tElemento)){
     int cantHijos = l_longitud(n->hijos);
 
-    if(n == a->raiz){ //n es raiz
+    if(n == a->raiz){ //si n es raiz
 
         if(cantHijos == 0){
             a->raiz=NULL;
@@ -99,11 +100,11 @@ void a_eliminar(tArbol a, tNodo n, void (*fEliminar)(tElemento)){
         }
     }
 
-    else{ //n no es raiz
-        tLista hermanos = n->padre->hijos;
+    else{ //si n no es raiz
+        tLista hermanos = n->padre->hijos; //lista de hijos del padre de n
         tPosicion cursorHijo = l_primera(n->hijos);
         tPosicion posN = obtenerPosicion(n);
-        tNodo hijo;
+        tNodo hijo; //guarda el nodo corespondiente a la tPosicion cursorHijo
 
         for(int i=0; i<cantHijos; i++){
             hijo = l_recuperar(n->hijos, cursorHijo);
@@ -128,14 +129,15 @@ void a_eliminar(tArbol a, tNodo n, void (*fEliminar)(tElemento)){
  Los elementos almacenados en el arbol son eliminados mediante la funcion fEliminar parametrizada.
 **/
 void a_destruir(tArbol * a, void (*fEliminar)(tElemento)) {
-    fEliminarUsuario = fEliminar;
+    fEliminarUsuario = fEliminar; //guarda la funcion pasada por parametro en una variable global
 
     tLista hijos = (*a)->raiz->hijos;
-    l_destruir(&hijos, &eliminar_nodo);
+    l_destruir(&hijos, &eliminar_nodo);//comienza el llamado recursivo
 
+
+    //elimina la raiz
     fEliminar((*a)->raiz->elemento);
     (*a)->raiz->elemento = NULL;
-
     free((*a)->raiz);
     (*a)->raiz = NULL;
 
@@ -172,17 +174,17 @@ tLista a_hijos(tArbol arbol, tNodo nodo) {
  El subarbol de A a partir de N debe ser eliminado de A.
 **/
 void a_sub_arbol(tArbol a, tNodo n, tArbol * sa){
-    crear_arbol(sa);
+    crear_arbol(sa); //inicializa una nuevo arbol en sa
     (*sa)->raiz = n;
 
-    if(n->padre != NULL){
+    if(n->padre != NULL){ //si n no es la raiz de a
         tLista hermanos = n->padre->hijos;
         tPosicion nPos = obtenerPosicion(n);
-        l_eliminar(hermanos, nPos, &fEliminarAux);
-        n->padre = NULL;
+        l_eliminar(hermanos, nPos, &fEliminarAux); ///elimina a n de la lista de hijos de su padre
+        n->padre = NULL; //elimina la referencia de n a su padre
     }
 
-    else{
+    else{//si n es la raiz de a
         a->raiz = NULL;
     }
 }
@@ -211,6 +213,9 @@ tPosicion obtenerPosicion(tNodo n) {
     return NULL;
 }
 
+/**
+ vacia el arbol recursivamente en preorden
+*/
 void eliminar_nodo(tElemento elemento) {
     tNodo nodo_borrar = (tNodo) elemento;
 
@@ -222,6 +227,9 @@ void eliminar_nodo(tElemento elemento) {
     free(nodo_borrar);
 }
 
+/**
+ retorn un nuevo nodo con con el padre y elemento recibidos
+*/
 tNodo crear_nodo(tNodo nodoPadre, tElemento elemento) {
 
     tNodo nodoNuevo = (tNodo) malloc(sizeof(struct nodo));
@@ -237,6 +245,7 @@ tNodo crear_nodo(tNodo nodoPadre, tElemento elemento) {
     return nodoNuevo;
 }
 
-void fEliminarAux(tElemento e){
-
-}
+/**
+ funcion vacia auxiliar para destruir una lista sin afectar los elementos en ella
+*/
+void fEliminarAux(tElemento e){}

@@ -39,7 +39,7 @@ void l_insertar(tLista l, tPosicion p, tElemento e){
  Si P es fin(L), finaliza indicando LST_POSICION_INVALIDA.
 **/
 void l_eliminar(tLista lista, tPosicion posicion, void (*fEliminar)(tElemento)) {
-    tPosicion auxSiguiente = NULL;
+    tPosicion auxSiguiente = NULL; //variable auxiliar para guardar la posicion siguiente a la eliminada
 
     if (posicion == l_fin(lista)) {
         exit(LST_POSICION_INVALIDA);
@@ -121,6 +121,7 @@ tPosicion l_siguiente(tLista l, tPosicion p) {
 tPosicion l_anterior(tLista l, tPosicion p){
     if(l_primera(l) == p)
         exit(LST_NO_EXISTE_ANTERIOR);
+
     else{
         tPosicion pos_actual = l; //primera posicion de la lista
         while(pos_actual ->siguiente != p){

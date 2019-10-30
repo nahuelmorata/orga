@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 #include "ia/ia.h"
 #include "partida/partida.h"
@@ -10,16 +11,17 @@ void iniciar_juego(tPartida *partida);
 void elegir_quien_comienza(int modo_juego, int *quien_comienza);
 void jugar_partida_2jugadores(tPartida partida);
 void jugar_partida_vs_ia(tPartida partida);
-static void eliminar_tEstado(tElemento e);
+
+// --------------------
 
 int main() {
-    srand(time(0));
+    srand(time(0)); //seed para rand()
     tPartida partida;
     int jugar_de_nuevo = 1;
     char leido;
 
     printf("Juego de Ta-Te-Ti\n");
-    while (jugar_de_nuevo) {
+    while (jugar_de_nuevo == 1) {
         iniciar_juego(&partida);
 
         printf("\nQuiere jugar de nuevo? (S/N): ");
@@ -28,7 +30,7 @@ int main() {
         if (leido == 'N' || leido == 'n') {
             jugar_de_nuevo = 0;
         }
-        if (leido == 'S' || leido == 's') { // De la nada se cambia jugar_de_nuevo a 0
+        if (leido == 'S' || leido == 's') {
             jugar_de_nuevo = 1;
         }
     }
@@ -58,8 +60,7 @@ void iniciar_juego(tPartida *partida) {
         printf("Ingrese el nombre del jugador 2(max 100) (O): ");
         scanf("%s", nombre_jugador_2);
     } else {
-        printf("Ingrese el nombre del jugador ia(max 100) (O): ");
-        scanf("%s", nombre_jugador_2);
+        strcpy(nombre_jugador_2, "IA");
     }
 
     elegir_quien_comienza(modo_juego, &comienza);
@@ -86,7 +87,9 @@ void iniciar_juego(tPartida *partida) {
             break;
         default:
             break;
+
     }
+
 }
 
 void elegir_quien_comienza(int modo_juego, int *quien_comienza) {
@@ -126,35 +129,6 @@ void elegir_quien_comienza(int modo_juego, int *quien_comienza) {
     }
 }
 
-void mostrar_tablero(tPartida partida) {
-    printf("-------------\n");
-
-    for (int i = 0; i < 3; i++) {
-        printf("|");
-        for (int j = 0; j < 3; j++) {
-            printf(" ");
-
-            if (partida->tablero->grilla[i][j] == PART_JUGADOR_1) {
-                printf("X");
-            }
-
-            if (partida->tablero->grilla[i][j] == PART_JUGADOR_2) {
-                printf("O");
-            }
-
-            if (partida->tablero->grilla[i][j] != PART_JUGADOR_1 && partida->tablero->grilla[i][j] != PART_JUGADOR_2) {
-                printf(" ");
-            }
-
-            printf(" |");
-        }
-
-        printf("\n-------------\n");
-    }
-
-    printf("\n");
-}
-
 void jugar_partida_2jugadores(tPartida partida){
     int x, y, mov_ok;
 
@@ -185,9 +159,9 @@ void jugar_partida_2jugadores(tPartida partida){
     if(partida->estado == PART_EMPATE)
         printf("\nPARTIDA TERMINO EN EMPATE\n");
     else if(partida->estado == PART_GANA_JUGADOR_1)
-        printf("\nJUGADOR 1 GANO\n");
+        printf("\n%s GANO\n", partida->nombre_jugador_1);
     else if(partida->estado == PART_GANA_JUGADOR_2)
-        printf("\nJUGADOR 2 GANO\n");
+        printf("\n%s GANO\n", partida->nombre_jugador_2);
 }
 
 void jugar_partida_vs_ia(tPartida partida) {
@@ -200,6 +174,7 @@ void jugar_partida_vs_ia(tPartida partida) {
                 printf("Jugador 1 ingrese su jugada (x,y): ");
                 scanf("%d,%d", &x, &y);
             } else {
+                printf("Turno de IA\n");
                 crear_busqueda_adversaria(&busqueda_ia, partida);
                 proximo_movimiento(busqueda_ia, &x, &y);
             }
@@ -221,14 +196,42 @@ void jugar_partida_vs_ia(tPartida partida) {
     if(partida->estado == PART_EMPATE)
         printf("\nPARTIDA TERMINO EN EMPATE\n");
     else if(partida->estado == PART_GANA_JUGADOR_1)
-        printf("\nJUGADOR 1 GANO\n");
+        printf("\n%s GANO\n", partida->nombre_jugador_1);
     else if(partida->estado == PART_GANA_JUGADOR_2)
-        printf("\nJUGADOR IA GANO\n");
+        printf("\n%s GANO\n", partida->nombre_jugador_2);
 }
 
-static void eliminar_tEstado(tElemento e){
-    tEstado estado_borrar = (tEstado) e;
-    free(estado_borrar);
+/**
+ Imprime el estado de la partida recibida
+ */
+void mostrar_tablero(tPartida partida) {
+    printf("-------------\n");
+
+    for (int i = 0; i < 3; i++) {
+        printf("|");
+        for (int j = 0; j < 3; j++) {
+            printf(" ");
+
+            if (partida->tablero->grilla[i][j] == PART_JUGADOR_1) {
+                printf("X");
+            }
+
+            else if (partida->tablero->grilla[i][j] == PART_JUGADOR_2) {
+                printf("O");
+            }
+
+            else if (partida->tablero->grilla[i][j] == PART_SIN_MOVIMIENTO) {
+                printf(" ");
+            }
+
+            printf(" |");
+        }
+
+        printf("\n-------------\n");
+    }
+
+    printf("\n");
 }
+
 
 
