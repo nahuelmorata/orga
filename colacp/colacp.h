@@ -1,3 +1,7 @@
+#ifndef COLA_CP_H
+#define COLA_CP_H
+
+
 typedef struct cola_con_prioridad {
 	int cantidad_elementos;
 	TNodo raiz;
@@ -19,6 +23,12 @@ typedef struct entrada {
 typedef void * TClave;
 typedef void * TValor;
 
+/**
+ * Referencia a la funcion con prioridad
+ * @return 1 si la primera entrada tiene mayor prioridad, 0 si tiene la misma prioridad,
+ * -1 si tiene menos prioridad
+ */
+int (*funcion_prioridad)(TEntrada, TEntrada);
 
 /*
     * Crea una cola con prioridad
@@ -31,7 +41,7 @@ TColaCP crear_cola_cp(int (*f)(TEntrada, TEntrada));
     * Inserta una entrada en la cola con prioridad
     * @param cola, una cola con prioridad
     * @param entr entrada a insertar
-    * @return verdadero si procede con ´exito, falso en caso contrario
+    * @return verdadero si procede con ï¿½exito, falso en caso contrario
 */
 int cp_insertar(TColaCP cola, TEntrada entr);
 
@@ -55,3 +65,5 @@ int cp_cantidad(TColaCP cola);
     * @param fEliminar, una funcion de  eliminacion
 */
 void cp_destruir(TColaCP cola, void (*fEliminar)(TEntrada) );
+
+#endif
