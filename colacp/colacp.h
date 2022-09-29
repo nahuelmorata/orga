@@ -33,12 +33,12 @@ TColaCP crear_cola_cp(int (*f)(TEntrada, TEntrada));
     * Inserta una entrada en la cola con prioridad
     * @param cola, una cola con prioridad
     * @param entr entrada a insertar
-    * @return verdadero si procede con �exito, falso en caso contrario
+    * @return verdadero si procede con eexito, falso en caso contrario
 */
 int cp_insertar(TColaCP cola, TEntrada entr);
 
 /*
-	* Elimina la entrada con mayor prioridad
+    * Elimina la entrada con mayor prioridad
     * @param cola, una cola con prioridad
     * @return  la entrada eliminada, o ELE NULO si la cola es vacia
 */
