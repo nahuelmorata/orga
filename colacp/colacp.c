@@ -13,6 +13,56 @@ TColaCP crear_cola_cp(int (*f)(TEntrada, TEntrada)) {
     return cola;
 }
 
+
+int es_hoja (TNodo n){
+    return (n->hijo_izquierdo==ELE_NULO);
+}
+
+int esta_lleno(TNodo n){
+    return (n->hijo_derecho!=ELE_NULO);
+}
+
+
+int insertar(TNodo n, TNodo nuevo){
+        if (esta_lleno(n)){
+                insertar(n->hijo_izquierdo, nuevo);
+                insertar(n->hijo_derecho, nuevo);
+        }
+        else {
+            if (es_hoja(n)){
+                n->hijo_izquierdo=nuevo;
+                nuevo->padre=n;
+                return TRUE;
+            }
+            else{
+                n->hijo_derecho=nuevo;
+                nuevo->padre=n;
+                return TRUE;
+            }
+            return FALSE;
+        }
+}
+
+int cp_insertar(TColaCP cola, TEntrada entr){
+    TNodo nuevo_nodo=(TNodo) malloc(sizeof(struct nodo));
+    nuevo_nodo->entrada=entr;
+    nuevo_nodo->hijo_derecho=ELE_NULO;
+    nuevo_nodo->hijo_izquierdo=ELE_NULO;
+    int exito=FALSE;
+
+    if (cola->cantidad_elementos==0){
+       cola->raiz=nuevo_nodo;
+       exito=TRUE;
+    }
+    else {
+        exito=insertar(cola->raiz, nuevo_nodo);
+    }
+    if (exito)
+        cola->cantidad_elementos++;
+
+    return exito;
+}
+
 TEntrada cp_eliminar(TColaCP cola) {
     if (cola->cantidad_elementos = 0) {
         return ELE_NULO;
@@ -36,7 +86,7 @@ TEntrada cp_eliminar(TColaCP cola) {
 
 /**
  * Obtiene la entrada del nodo mas profundo y mas a la derecha, al padre se le borra este hijo
- * 
+ *
  * @param cola Referencia de la cola con prioridad
  * @returns Entrada del nodo mas profundo y mas a la derecha
  */
@@ -59,7 +109,7 @@ void burbujeo_abajo(TColaCP cola) {
     boolean seguir = TRUE;
     TNodo nodo_actual = cola->raiz, nodo_minimo = NULL;
     TEntrada aux_entrada = NULL;
-    
+
     while(seguir) {
         if (nodo_actual->hijo_izquierdo == ELE_NULO) {
             seguir = FALSE;
@@ -85,12 +135,26 @@ void burbujeo_abajo(TColaCP cola) {
     }
 }
 
-void cp_destruir(TColaCP cola, void (*fEliminar)(TEntrada)){
-    //mientras el arbol no esta vacio, llamo a fEliminar
-    while (cp_cantidad(cola) > 0){
-        cp-eliminar(cola);
+/**
+ * Elimina cada nodo y su respectiva entrada en pos orden
+ *
+ * @param n nodo a eliminar
+ * @param fEliminar funcion para eliminar una entrada dada
+ */
+void pos_orden(TNodo n, void (*fEliminar)(TEntrada)){
+    if (n->hijo_izquierdo != ELE_NULO){
+        pos_orden(n->hijo_izquierdo, fEliminar);
     }
-    //borrar la memoria asociada  
-    
-    
+    if (n->hijo_derecho != ELE_NULO){
+        pos_orden(n->hijo_derecho, fEliminar);
+    }
+    fEliminar(n->entrada);
+    free(n);
 }
+
+void cp_destruir(TColaCP cola, void (*fEliminar)(TEntrada)){
+    pos_orden(cola->raiz,fEliminar);
+    cola->cantidad_elementos=0;
+    free(cola);
+}
+

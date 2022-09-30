@@ -1,11 +1,13 @@
 #ifndef COLA_CP_H
 #define COLA_CP_H
 
-typedef struct cola_con_prioridad {
-	int cantidad_elementos;
-	TNodo raiz;
-	int (*comparador)(TEntrada, TEntrada);
-} * TColaCP;
+typedef void * TClave;
+typedef void * TValor;
+
+typedef struct entrada {
+	TClave clave;
+	TValor valor;
+} * TEntrada;
 
 typedef struct nodo {
 	TEntrada entrada;
@@ -14,13 +16,12 @@ typedef struct nodo {
 	struct nodo * hijo_derecho;
 } * TNodo;
 
-typedef struct entrada {
-	TClave clave;
-	TValor valor;
-} * TEntrada;
+typedef struct cola_con_prioridad {
+	int cantidad_elementos;
+	TNodo raiz;
+	int (*comparador)(TEntrada, TEntrada);
+} * TColaCP;
 
-typedef void * TClave;
-typedef void * TValor;
 
 /*
     * Crea una cola con prioridad
@@ -33,7 +34,7 @@ TColaCP crear_cola_cp(int (*f)(TEntrada, TEntrada));
     * Inserta una entrada en la cola con prioridad
     * @param cola, una cola con prioridad
     * @param entr entrada a insertar
-    * @return verdadero si procede con eexito, falso en caso contrario
+    * @return verdadero si procede con exito, falso en caso contrario
 */
 int cp_insertar(TColaCP cola, TEntrada entr);
 
