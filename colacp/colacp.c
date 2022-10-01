@@ -1,13 +1,14 @@
 #include <stdlib.h>
 #include "colacp.h"
-#include "../constantes.h";
+#include "../constantes.h"
 
-TEntrada obtener_ultima_entrada_derecha(TColaCP cola);
+TNodo obtener_ultimo_nodo(TColaCP cola);
 void burbujeo_abajo(TColaCP cola);
 boolean es_hoja(TNodo n);
 boolean esta_lleno(TNodo n);
 boolean insertar(TNodo n, TNodo nuevo);
 void eliminar_pos_orden(TNodo n, void (*fEliminar)(TEntrada));
+void burbujeo_arriba(TColaCP cola, TNodo nodo);
 
 TColaCP crear_cola_cp(int (*f)(TEntrada, TEntrada)) {
     TColaCP cola = (TColaCP) malloc(sizeof(struct cola_con_prioridad));
@@ -24,6 +25,7 @@ int cp_cantidad(TColaCP cola) {
 boolean cp_insertar(TColaCP cola, TEntrada entr) {
     TNodo nuevo_nodo = (TNodo) malloc(sizeof(struct nodo));
     nuevo_nodo->entrada = entr;
+    nuevo_nodo->padre = ELE_NULO;
     nuevo_nodo->hijo_derecho = ELE_NULO;
     nuevo_nodo->hijo_izquierdo = ELE_NULO;
     boolean exito = FALSE;
@@ -31,12 +33,14 @@ boolean cp_insertar(TColaCP cola, TEntrada entr) {
     if (cola->cantidad_elementos == 0){
        cola->raiz = nuevo_nodo;
        exito = TRUE;
-    }
-    else {
+    } else {
         exito = insertar(cola->raiz, nuevo_nodo);
     }
+
     if (exito)
         cola->cantidad_elementos++;
+
+    burbujeo_arriba(cola, nuevo_nodo);
 
     return exito;
 }
@@ -54,9 +58,15 @@ TEntrada cp_eliminar(TColaCP cola) {
         return entrada;
     }
 
-    TEntrada nueva_raiz = obtener_ultima_entrada_derecha(cola);
-    cola->raiz->entrada = nueva_raiz;
+    TNodo ultimo_nodo = obtener_ultimo_nodo(cola);
+    cola->raiz->entrada = ultimo_nodo->entrada;
 
+    if (ultimo_nodo->padre->hijo_derecho == ultimo_nodo) {
+        ultimo_nodo->padre->hijo_derecho = ELE_NULO;
+    } else {
+        ultimo_nodo->padre->hijo_izquierdo = ELE_NULO;
+    }
+    free(ultimo_nodo);
     burbujeo_abajo(cola);
 
     return entrada;
@@ -73,7 +83,7 @@ void cp_destruir(TColaCP cola, void (*fEliminar)(TEntrada)){
  * @param cola Referencia de la cola con prioridad
  * @returns Entrada del nodo mas profundo y mas a la derecha
  */
-TEntrada obtener_ultima_entrada_derecha(TColaCP cola) {
+TNodo obtener_ultimo_nodo(TColaCP cola) {
     TNodo nodo_actual = cola->raiz;
     boolean seguir = TRUE;
 
@@ -86,6 +96,8 @@ TEntrada obtener_ultima_entrada_derecha(TColaCP cola) {
             seguir = FALSE;
         }
     }
+
+    return nodo_actual;
 }
 
 /**
@@ -124,6 +136,26 @@ void burbujeo_abajo(TColaCP cola) {
 }
 
 /**
+ * Aplica burbujeo hacia arriba para reordenar la cola basado en la funcion de prioridad
+ *
+ * @param nodo
+ */
+void burbujeo_arriba(TColaCP cola, TNodo nodo) {
+    TNodo nodo_actual = nodo;
+    while(nodo_actual->padre != ELE_NULO) {
+        if (cola->comparador(nodo_actual->entrada, nodo_actual->padre->entrada) == 1) {
+            TEntrada entrada_aux;
+
+            entrada_aux = nodo_actual->padre->entrada;
+            nodo_actual->padre->entrada = nodo_actual->entrada;
+            nodo_actual->entrada = entrada_aux;
+        }
+
+        nodo_actual = nodo_actual->padre;
+    }
+}
+
+/**
  * Elimina cada nodo y su respectiva entrada en pos orden
  *
  * @param n nodo a eliminar
@@ -151,13 +183,13 @@ boolean es_hoja(TNodo n) {
 }
 
 /**
- * Retorna si el nodo pasado por parametro es tiene su ultimo hijo lleno
+ * Retorna si el nodo pasado por parametro tiene los hijos ocupados
  * 
  * @param n Nodo a verificar
- * @returns Verdadero si el ultimo hijo esta lleno sino Falso
+ * @returns Verdadero si el tiene todos los hijos ocupados sino Falso
  */
 boolean esta_lleno(TNodo n) {
-    return n->hijo_derecho != ELE_NULO;
+    return n->hijo_izquierdo != ELE_NULO && n->hijo_derecho != ELE_NULO;
 }
 
 /**
@@ -169,8 +201,13 @@ boolean esta_lleno(TNodo n) {
  */
 boolean insertar(TNodo n, TNodo nuevo) {
     if (esta_lleno(n)) {
-        insertar(n->hijo_izquierdo, nuevo);
-        insertar(n->hijo_derecho, nuevo);
+        if (esta_lleno(n->hijo_izquierdo) && esta_lleno(n->hijo_derecho)) {
+            return insertar(n->hijo_izquierdo, nuevo);
+        }
+        if (esta_lleno(n->hijo_izquierdo)) {
+            return insertar(n->hijo_derecho, nuevo);
+        }
+        return insertar(n->hijo_izquierdo, nuevo);
     } else {
         if (es_hoja(n)){
             n->hijo_izquierdo = nuevo;
