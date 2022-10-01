@@ -7,7 +7,7 @@ void burbujeo_abajo(TColaCP cola);
 boolean es_hoja(TNodo n);
 boolean esta_lleno(TNodo n);
 boolean insertar(TNodo n, TNodo nuevo);
-
+void eliminar_pos_orden(TNodo n, void (*fEliminar)(TEntrada));
 
 TColaCP crear_cola_cp(int (*f)(TEntrada, TEntrada)) {
     TColaCP cola = (TColaCP) malloc(sizeof(struct cola_con_prioridad));
@@ -42,7 +42,7 @@ boolean cp_insertar(TColaCP cola, TEntrada entr) {
 }
 
 TEntrada cp_eliminar(TColaCP cola) {
-    if (cola->cantidad_elementos = 0) {
+    if (cola->cantidad_elementos == 0) {
         return ELE_NULO;
     }
 
@@ -129,7 +129,7 @@ void burbujeo_abajo(TColaCP cola) {
  * @param n nodo a eliminar
  * @param fEliminar funcion para eliminar una entrada dada
  */
-void eliminar_pos_orden(TNodo n, void (*fEliminar)(TEntrada)){
+void eliminar_pos_orden(TNodo n, void (*fEliminar)(TEntrada)) {
     if (n->hijo_izquierdo != ELE_NULO){
         eliminar_pos_orden(n->hijo_izquierdo, fEliminar);
     }
@@ -181,6 +181,5 @@ boolean insertar(TNodo n, TNodo nuevo) {
             nuevo->padre = n;
             return TRUE;
         }
-        return FALSE;
     }
 }
