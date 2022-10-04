@@ -69,6 +69,8 @@ void liberar_ciudades(TCiudad *ciudades, int cantidad_elementos) {
     free(ciudades);
 }
 
+
+
 int main(int argc, char* args[]) {
     if (argc < 2) {
         printf("Falta el archivo de viajes. El formato es %s <archivo>", args[0]);
@@ -82,7 +84,37 @@ int main(int argc, char* args[]) {
         TCiudad ciudad = ciudades[i];
         printf("%s en x = %f, y = %f\n", ciudad->nombre, ciudad->pos_x, ciudad->pos_y);
     }
+
+    int opcion;
+    printf("Menu \n 1...Mostrar ascendente \n 2...Mostrar descendente \n 3...Reducir horas de manejo \n 4...Salir \n");
+    scanf ("%d",&opcion);
+
+    switch(opcion){
+      case 1:{
+          mostrar_ascendente (ciudades, cantidad_elementos);
+          break;
+      }
+      case 2:{
+          mostrar_descendente (ciudades, cantidad_elementos);
+          break;
+      }
+      case 3:{
+          reducir_horas_de_manejo (ciudades, cantidad_elementos);
+          break;
+      }
+      case 4: {
+          return 0;
+          break;
+      }
+      default:{
+        printf ("La opcion ingresada es incorrecta");
+        break;
+      }
+    }
+
     liberar_ciudades(ciudades, cantidad_elementos);
+
+
 
     return 0;
 }
