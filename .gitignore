@@ -1,3 +1,7 @@
 CMakeLists.txt
 cmake-build-debug
 planificador.o
+bin
+obj
+orga.depend
+orga.layout
