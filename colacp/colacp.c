@@ -67,6 +67,7 @@ TEntrada cp_eliminar(TColaCP cola) {
         ultimo_nodo->padre->hijo_izquierdo = ELE_NULO;
     }
     free(ultimo_nodo);
+    cola->cantidad_elementos--;
     burbujeo_abajo(cola);
 
     return entrada;
