@@ -9,8 +9,8 @@
 * @param entrada_a_eliminar La entrada eliminada
 */
 void fEliminar(TEntrada entrada_a_eliminar) {
-    entrada_a_eliminar->clave = ELE_NULO;
-    entrada_a_eliminar->valor = ELE_NULO;
+    free(entrada_a_eliminar->clave);
+    free(entrada_a_eliminar->valor);
     free(entrada_a_eliminar);
 }
 
@@ -67,9 +67,9 @@ int prioridad_descendente(TEntrada ciudad1, TEntrada ciudad2) {
 */
 TCiudad * eliminar_elemento_arreglo(TCiudad ciudades[], TCiudad ciudad, int cantidad) {
     int pos = 0;
-    TCiudad *ciudades_aux = (TCiudad *) malloc(sizeof(TCiudad) * (cantidad - 1));
+    TCiudad * ciudades_aux = (TCiudad *) malloc(sizeof(TCiudad) * ( cantidad - 1));
     for (int i = 0; i < cantidad; i++) {
-        if (ciudad != ciudades[i]) {
+        if (ciudad->nombre != ciudades[i]->nombre){
             ciudades_aux[pos] = ciudades[i];
             pos++;
         }
@@ -88,12 +88,19 @@ TCiudad * eliminar_elemento_arreglo(TCiudad ciudades[], TCiudad ciudad, int cant
 */
 TColaCP ordenar(int (*funcion_prioridad)(TEntrada, TEntrada), TCiudad ciudad_actual, TCiudad arr_ciudades[], int cantidad) {
     TColaCP cola = crear_cola_cp(funcion_prioridad);
-    for (int i = 1; i < cantidad; i++) {
-        TEntrada entrada_ciudad = (TEntrada) malloc(sizeof(struct entrada));
-        *((float *) entrada_ciudad->clave) = calcular_distancia(ciudad_actual, arr_ciudades[i]);
-        entrada_ciudad->valor = arr_ciudades[i];
-        cp_insertar(cola, entrada_ciudad);
-    }
+		for (int i=1; i < cantidad; i++){
+            TEntrada entrada_ciudad = (TEntrada) malloc(sizeof(struct entrada));
+            float *clavePuntero = (float*) malloc(sizeof(float));
+            TCiudad claveValor = (TCiudad) malloc(sizeof(struct ciudad));
+
+            *clavePuntero = calcular_distancia(ciudad_actual, arr_ciudades[i]);
+            *claveValor = * arr_ciudades[i];
+
+            entrada_ciudad->clave = clavePuntero;
+            entrada_ciudad->valor = claveValor;
+
+			cp_insertar(cola, entrada_ciudad);
+		}
     return cola;
 }
 
@@ -102,13 +109,14 @@ TColaCP ordenar(int (*funcion_prioridad)(TEntrada, TEntrada), TCiudad ciudad_act
 * @param TColaCP cola Una cola con prioridad de punteros a ciudades
 */
 void mostrar(TColaCP cola) {
-    for (int i = 1; i <= cp_cantidad(cola); i++) {
+    int i=0;
+    while (cp_cantidad(cola)>0){
         TEntrada entrada_mayor_prioridad = cp_eliminar(cola);
         TCiudad ciudad_mayor_prioridad = (TCiudad) entrada_mayor_prioridad->valor;
-        printf("%d. %s.\n", i, ciudad_mayor_prioridad->nombre);
+        printf("%d. %s.\n", ++i, ciudad_mayor_prioridad->nombre);
         fEliminar(entrada_mayor_prioridad);
     }
-    cp_destruir(cola,(fEliminar));
+    cp_destruir(cola,fEliminar);
 }
 
 void mostrar_ascendente(TCiudad * arreglo_ciudades, int cantidad) {
@@ -128,7 +136,9 @@ void reducir_horas_de_manejo(TCiudad * arreglo_ciudades, int cantidad){
     float total_recorrido = 0;
     int orden = 1;
     int cantidad_ciudades = cantidad;
+
     TCiudad *copia_arreglo_ciudades = (TCiudad *) malloc(sizeof(TCiudad) * (cantidad_ciudades));
+
     for (int i = 0; i < cantidad_ciudades; i++) {
         copia_arreglo_ciudades[i] = arreglo_ciudades[i];
     }
@@ -139,14 +149,20 @@ void reducir_horas_de_manejo(TCiudad * arreglo_ciudades, int cantidad){
         TColaCP cola = ordenar(prioridad_ascendente, ciudad_actual, copia_arreglo_ciudades, cantidad_ciudades);
         TEntrada mayor_prioridad = cp_eliminar(cola);
         ciudad_actual = (TCiudad) mayor_prioridad->valor;
+
         printf("%d. %s.\n", orden, ciudad_actual->nombre);
-        total_recorrido += *((float*) mayor_prioridad->clave);
+
+        total_recorrido = total_recorrido + *((float*) mayor_prioridad->clave);
+
         copia_arreglo_ciudades = eliminar_elemento_arreglo(copia_arreglo_ciudades, ciudad_actual, cantidad_ciudades);
         cantidad_ciudades = cantidad_ciudades - 1;
+
         fEliminar(mayor_prioridad);
+
         cp_destruir(cola, fEliminar);
+
         orden++;
     }
-    free(copia_arreglo_ciudades);
     printf("Total recorrido: %f.", total_recorrido);
+    free(copia_arreglo_ciudades);
 }

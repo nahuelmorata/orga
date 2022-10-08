@@ -74,7 +74,9 @@ TEntrada cp_eliminar(TColaCP cola) {
 }
 
 void cp_destruir(TColaCP cola, void (*fEliminar)(TEntrada)){
-    eliminar_pos_orden(cola->raiz, fEliminar);
+    if (cp_cantidad(cola)>0 ){
+        eliminar_pos_orden(cola->raiz, fEliminar);
+    }
     free(cola);
 }
 
@@ -103,7 +105,7 @@ TNodo obtener_ultimo_nodo(TColaCP cola) {
 
 /**
  * Aplica burbujeo hacia abajo para reordenar la cola basado en la funcion de prioridad
- * 
+ *
  * @param cola Cola con prioridad
  */
 void burbujeo_abajo(TColaCP cola) {
@@ -175,7 +177,7 @@ void eliminar_pos_orden(TNodo n, void (*fEliminar)(TEntrada)) {
 
 /**
  * Retorna si el nodo pasado por parametro es hoja
- * 
+ *
  * @param n Nodo a verificar
  * @returns Verdadero si es hoja sino Falso
  */
@@ -185,7 +187,7 @@ boolean es_hoja(TNodo n) {
 
 /**
  * Retorna si el nodo pasado por parametro tiene los hijos ocupados
- * 
+ *
  * @param n Nodo a verificar
  * @returns Verdadero si el tiene todos los hijos ocupados sino Falso
  */
@@ -195,7 +197,7 @@ boolean esta_lleno(TNodo n) {
 
 /**
  * Inserta el nodo en el ultimo lugar que encuentra siguiendo el recorrido de por niveles
- * 
+ *
  * @param n Nodo de inicio
  * @param nuevo Nodo a agregar
  * @returns Verdadero si lo inserta sino Falso
