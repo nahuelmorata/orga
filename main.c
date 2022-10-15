@@ -103,7 +103,6 @@ int main(int argc, char* args[]) {
           break;
       }
       case 4: {
-          return 0;
           break;
       }
       default:{

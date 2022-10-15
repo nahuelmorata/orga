@@ -53,6 +53,7 @@ TEntrada cp_eliminar(TColaCP cola) {
     TEntrada entrada = cola->raiz->entrada;
 
     if (cola->cantidad_elementos == 1) {
+        free(cola->raiz);
         cola->raiz = ELE_NULO;
         cola->cantidad_elementos = 0;
         return entrada;
@@ -167,9 +168,11 @@ void burbujeo_arriba(TColaCP cola, TNodo nodo) {
 void eliminar_pos_orden(TNodo n, void (*fEliminar)(TEntrada)) {
     if (n->hijo_izquierdo != ELE_NULO){
         eliminar_pos_orden(n->hijo_izquierdo, fEliminar);
+        n->hijo_izquierdo = ELE_NULO;
     }
     if (n->hijo_derecho != ELE_NULO){
         eliminar_pos_orden(n->hijo_derecho, fEliminar);
+        n->hijo_derecho = ELE_NULO;
     }
     fEliminar(n->entrada);
     free(n);
