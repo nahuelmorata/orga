@@ -1,8 +1,17 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "../colacp/colacp.h"
 #include "../constantes.h"
 #include "planificador.h"
+
+/**
+ * Devuelve clon de ciudades en profundidad
+ * @param ciudades Ciudades a clonar
+ * @param cantidad Cantidad de ciudades
+ * @return Clon de ciudades
+ */
+TCiudad *clonar_ciudades(TCiudad *ciudades, int cantidad);
 
 /**
 * Elimina y libera la memoria de una entrada
@@ -10,7 +19,6 @@
 */
 void fEliminar(TEntrada entrada_a_eliminar) {
     free(entrada_a_eliminar->clave);
-    free(entrada_a_eliminar->valor);
     free(entrada_a_eliminar);
 }
 
@@ -69,12 +77,11 @@ TCiudad * eliminar_elemento_arreglo(TCiudad ciudades[], TCiudad ciudad, int cant
     int pos = 0;
     TCiudad * ciudades_aux = (TCiudad *) malloc(sizeof(TCiudad) * ( cantidad - 1));
     for (int i = 0; i < cantidad; i++) {
-        if (ciudad->nombre != ciudades[i]->nombre){
+        if (ciudad->nombre != ciudades[i]->nombre) {
             ciudades_aux[pos] = ciudades[i];
             pos++;
         }
     }
-    free(ciudades);
     return ciudades_aux;
 }
 
@@ -91,13 +98,11 @@ TColaCP ordenar(int (*funcion_prioridad)(TEntrada, TEntrada), TCiudad ciudad_act
 		for (int i=1; i < cantidad; i++){
             TEntrada entrada_ciudad = (TEntrada) malloc(sizeof(struct entrada));
             float *clavePuntero = (float*) malloc(sizeof(float));
-            TCiudad claveValor = (TCiudad) malloc(sizeof(struct ciudad));
 
             *clavePuntero = calcular_distancia(ciudad_actual, arr_ciudades[i]);
-            *claveValor = * arr_ciudades[i];
 
             entrada_ciudad->clave = clavePuntero;
-            entrada_ciudad->valor = claveValor;
+            entrada_ciudad->valor = arr_ciudades[i];
 
 			cp_insertar(cola, entrada_ciudad);
 		}
@@ -137,32 +142,39 @@ void reducir_horas_de_manejo(TCiudad * arreglo_ciudades, int cantidad){
     int orden = 1;
     int cantidad_ciudades = cantidad;
 
-    TCiudad *copia_arreglo_ciudades = (TCiudad *) malloc(sizeof(TCiudad) * (cantidad_ciudades));
-
-    for (int i = 0; i < cantidad_ciudades; i++) {
-        copia_arreglo_ciudades[i] = arreglo_ciudades[i];
-    }
-
+    TCiudad *copia_arreglo_ciudades = clonar_ciudades(arreglo_ciudades, cantidad_ciudades);
     TCiudad ciudad_actual = copia_arreglo_ciudades[0];
 
     while (cantidad_ciudades > 1) {
         TColaCP cola = ordenar(prioridad_ascendente, ciudad_actual, copia_arreglo_ciudades, cantidad_ciudades);
         TEntrada mayor_prioridad = cp_eliminar(cola);
+        cp_destruir(cola, fEliminar);
+
         ciudad_actual = (TCiudad) mayor_prioridad->valor;
+        TCiudad * aux_copia_clon = eliminar_elemento_arreglo(copia_arreglo_ciudades, ciudad_actual, cantidad_ciudades);
+        cantidad_ciudades = cantidad_ciudades - 1;
 
         printf("%d. %s.\n", orden, ciudad_actual->nombre);
 
         total_recorrido = total_recorrido + *((float*) mayor_prioridad->clave);
 
-        copia_arreglo_ciudades = eliminar_elemento_arreglo(copia_arreglo_ciudades, ciudad_actual, cantidad_ciudades);
-        cantidad_ciudades = cantidad_ciudades - 1;
-
         fEliminar(mayor_prioridad);
 
-        cp_destruir(cola, fEliminar);
+        free(copia_arreglo_ciudades);
+        copia_arreglo_ciudades = aux_copia_clon;
 
         orden++;
     }
-    printf("Total recorrido: %f.", total_recorrido);
     free(copia_arreglo_ciudades);
+    printf("Total recorrido: %f.", total_recorrido);
+}
+
+TCiudad *clonar_ciudades(TCiudad *ciudades, int cantidad) {
+    TCiudad *clon = (TCiudad *) malloc(sizeof(TCiudad) * cantidad);
+
+    for (int i = 0; i < cantidad; i++) {
+        clon[i] = ciudades[i];
+    }
+
+    return clon;
 }
