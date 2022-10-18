@@ -1,9 +1,16 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include "../colacp/colacp.h"
-#include "../constantes.h"
 #include "planificador.h"
+
+/**
+ * Devuelve la ciudad mas cercana a la actual
+ * @param ciudad_actual Ciudad de origen
+ * @param ciudades Lista de ciudades
+ * @param cantidad_ciudades Cantidad de ciudades
+ * @return Ciudad mas cercana
+ */
+TEntrada obtener_siguiente_ciudad(TCiudad ciudad_actual, TCiudad ciudades[], int cantidad_ciudades);
 
 /**
  * Devuelve clon de ciudades en profundidad
@@ -11,7 +18,7 @@
  * @param cantidad Cantidad de ciudades
  * @return Clon de ciudades
  */
-TCiudad *clonar_ciudades(TCiudad *ciudades, int cantidad);
+TCiudad *clonar_ciudades(TCiudad ciudades[], int cantidad);
 
 /**
 * Elimina y libera la memoria de una entrada
@@ -28,7 +35,7 @@ void fEliminar(TEntrada entrada_a_eliminar) {
 * @param TCiudad hasta Un puntero a una ciudad de llegada.
 * @return La distancia entre  dos ciudades
 */
-float calcular_distancia (TCiudad desde, TCiudad hasta) {
+float calcular_distancia(TCiudad desde, TCiudad hasta) {
     return abs(hasta->pos_x - desde->pos_x) + abs(hasta->pos_y - desde->pos_y);
 }
 
@@ -73,17 +80,7 @@ int prioridad_descendente(TEntrada ciudad1, TEntrada ciudad2) {
 * @param int cantidad El tama�o del arreglo
 * @return El arreglo sin la ciudad eliminada
 */
-TCiudad * eliminar_elemento_arreglo(TCiudad ciudades[], TCiudad ciudad, int cantidad) {
-    int pos = 0;
-    TCiudad * ciudades_aux = (TCiudad *) malloc(sizeof(TCiudad) * ( cantidad - 1));
-    for (int i = 0; i < cantidad; i++) {
-        if (ciudad->nombre != ciudades[i]->nombre) {
-            ciudades_aux[pos] = ciudades[i];
-            pos++;
-        }
-    }
-    return ciudades_aux;
-}
+TCiudad *eliminar_elemento_arreglo(TCiudad ciudades[], TCiudad ciudad, int cantidad);
 
 /**
 * Ordena las ciudades recibidas por una funcion_prioridad dada
@@ -93,27 +90,13 @@ TCiudad * eliminar_elemento_arreglo(TCiudad ciudades[], TCiudad ciudad, int cant
 * @param int cantidad Tamaño del arreglo arr_ciudades
 * @return El arreglo sin la ciudad eliminada
 */
-TColaCP ordenar(int (*funcion_prioridad)(TEntrada, TEntrada), TCiudad ciudad_actual, TCiudad arr_ciudades[], int cantidad) {
-    TColaCP cola = crear_cola_cp(funcion_prioridad);
-		for (int i=1; i < cantidad; i++){
-            TEntrada entrada_ciudad = (TEntrada) malloc(sizeof(struct entrada));
-            float *clavePuntero = (float*) malloc(sizeof(float));
-
-            *clavePuntero = calcular_distancia(ciudad_actual, arr_ciudades[i]);
-
-            entrada_ciudad->clave = clavePuntero;
-            entrada_ciudad->valor = arr_ciudades[i];
-
-			cp_insertar(cola, entrada_ciudad);
-		}
-    return cola;
-}
+TColaCP ordenar(int (*funcion_prioridad)(TEntrada, TEntrada), TCiudad ciudad_actual, TCiudad arr_ciudades[], int cantidad);
 
 /**
 * Muestra por pantalla las ciudades ordenadas por una prioridad dada
 * @param TColaCP cola Una cola con prioridad de punteros a ciudades
 */
-void mostrar(TColaCP cola) {
+void mostrar_y_liberar(TColaCP cola) {
     int i=0;
     while (cp_cantidad(cola)>0){
         TEntrada entrada_mayor_prioridad = cp_eliminar(cola);
@@ -124,19 +107,19 @@ void mostrar(TColaCP cola) {
     cp_destruir(cola,fEliminar);
 }
 
-void mostrar_ascendente(TCiudad * arreglo_ciudades, int cantidad) {
+void mostrar_ascendente(TCiudad arreglo_ciudades[], int cantidad) {
     printf("Mostrar ascendente \n");
     TColaCP cola_ordenada = ordenar(prioridad_ascendente, arreglo_ciudades[0], arreglo_ciudades, cantidad);
-    mostrar (cola_ordenada);
+    mostrar_y_liberar(cola_ordenada);
 }
 
-void mostrar_descendente(TCiudad * arreglo_ciudades, int cantidad){
+void mostrar_descendente(TCiudad arreglo_ciudades[], int cantidad){
     printf("Mostrar descendente \n");
     TColaCP cola_ordenada = ordenar(prioridad_descendente, arreglo_ciudades[0], arreglo_ciudades, cantidad);
-    mostrar (cola_ordenada);
+    mostrar_y_liberar(cola_ordenada);
 }
 
-void reducir_horas_de_manejo(TCiudad * arreglo_ciudades, int cantidad){
+void reducir_horas_de_manejo(TCiudad arreglo_ciudades[], int cantidad){
     printf("Reducir horas manejo\n");
     float total_recorrido = 0;
     int orden = 1;
@@ -146,35 +129,61 @@ void reducir_horas_de_manejo(TCiudad * arreglo_ciudades, int cantidad){
     TCiudad ciudad_actual = copia_arreglo_ciudades[0];
 
     while (cantidad_ciudades > 1) {
-        TColaCP cola = ordenar(prioridad_ascendente, ciudad_actual, copia_arreglo_ciudades, cantidad_ciudades);
-        TEntrada mayor_prioridad = cp_eliminar(cola);
-        cp_destruir(cola, fEliminar);
+        TEntrada siguiente_ciudad = obtener_siguiente_ciudad(ciudad_actual, copia_arreglo_ciudades, cantidad_ciudades);
 
-        ciudad_actual = (TCiudad) mayor_prioridad->valor;
-        TCiudad * aux_copia_clon = eliminar_elemento_arreglo(copia_arreglo_ciudades, ciudad_actual, cantidad_ciudades);
-        cantidad_ciudades = cantidad_ciudades - 1;
-
+        ciudad_actual = (TCiudad) siguiente_ciudad->valor;
+        total_recorrido += *((float *) siguiente_ciudad->clave);
         printf("%d. %s.\n", orden, ciudad_actual->nombre);
+        fEliminar(siguiente_ciudad);
 
-        total_recorrido = total_recorrido + *((float*) mayor_prioridad->clave);
-
-        fEliminar(mayor_prioridad);
-
-        free(copia_arreglo_ciudades);
-        copia_arreglo_ciudades = aux_copia_clon;
+        copia_arreglo_ciudades = eliminar_elemento_arreglo(copia_arreglo_ciudades, ciudad_actual, cantidad_ciudades);
+        cantidad_ciudades = cantidad_ciudades - 1;
 
         orden++;
     }
     free(copia_arreglo_ciudades);
-    printf("Total recorrido: %f.", total_recorrido);
+    printf("Total recorrido: %i.", (int) total_recorrido);
 }
 
-TCiudad *clonar_ciudades(TCiudad *ciudades, int cantidad) {
+TCiudad *clonar_ciudades(TCiudad ciudades[], int cantidad) {
     TCiudad *clon = (TCiudad *) malloc(sizeof(TCiudad) * cantidad);
-
     for (int i = 0; i < cantidad; i++) {
         clon[i] = ciudades[i];
     }
-
     return clon;
+}
+
+TEntrada obtener_siguiente_ciudad(TCiudad ciudad_actual, TCiudad ciudades[], int cantidad_ciudades) {
+    TColaCP cola = ordenar(prioridad_ascendente, ciudad_actual, ciudades, cantidad_ciudades);
+    TEntrada mayor_prioridad = cp_eliminar(cola);
+    cp_destruir(cola, fEliminar);
+    return mayor_prioridad;
+}
+
+TColaCP ordenar(int (*funcion_prioridad)(TEntrada, TEntrada), TCiudad ciudad_actual, TCiudad arr_ciudades[], int cantidad) {
+    TColaCP cola = crear_cola_cp(funcion_prioridad);
+    for (int i = 1; i < cantidad; i++){
+        TEntrada entrada_ciudad = (TEntrada) malloc(sizeof(struct entrada));
+        float *clavePuntero = (float *) malloc(sizeof(float));
+        *clavePuntero = calcular_distancia(ciudad_actual, arr_ciudades[i]);
+
+        entrada_ciudad->clave = clavePuntero;
+        entrada_ciudad->valor = arr_ciudades[i];
+
+        cp_insertar(cola, entrada_ciudad);
+    }
+    return cola;
+}
+
+TCiudad *eliminar_elemento_arreglo(TCiudad ciudades[], TCiudad ciudad, int cantidad) {
+    int pos = 0;
+    TCiudad *ciudades_aux = (TCiudad *) malloc(sizeof(TCiudad) * (cantidad - 1));
+    for (int i = 0; i < cantidad; i++) {
+        if (ciudad->nombre != ciudades[i]->nombre) {
+            ciudades_aux[pos] = ciudades[i];
+            pos++;
+        }
+    }
+    free(ciudades);
+    return ciudades_aux;
 }

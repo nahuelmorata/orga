@@ -59,7 +59,7 @@ TCiudad* leer_archivo(char *path_archivo, int *cantidad_elementos) {
     return ciudades;
 }
 
-void liberar_ciudades(TCiudad *ciudades, int cantidad_elementos) {
+void liberar_ciudades(TCiudad ciudades[], int cantidad_elementos) {
     for(int i = 0; i < cantidad_elementos; i++) {
         if (ciudades[i]->nombre != NULL) {
             free(ciudades[i]->nombre);
@@ -80,31 +80,25 @@ int main(int argc, char* args[]) {
     int cantidad_elementos = 2;
     TCiudad *ciudades = leer_archivo(args[1], &cantidad_elementos);
 
-    for(int i = 0; i < cantidad_elementos; i++) {
-        TCiudad ciudad = ciudades[i];
-        printf("%s en x = %f, y = %f\n", ciudad->nombre, ciudad->pos_x, ciudad->pos_y);
-    }
-
     int opcion;
     printf("Menu \n 1...Mostrar ascendente \n 2...Mostrar descendente \n 3...Reducir horas de manejo \n 4...Salir \n");
-    scanf ("%d",&opcion);
+    scanf("%d", &opcion);
 
     switch(opcion){
       case 1:{
-          mostrar_ascendente (ciudades, cantidad_elementos);
+          mostrar_ascendente(ciudades, cantidad_elementos);
           break;
       }
       case 2:{
-          mostrar_descendente (ciudades, cantidad_elementos);
+          mostrar_descendente(ciudades, cantidad_elementos);
           break;
       }
       case 3:{
-          reducir_horas_de_manejo (ciudades, cantidad_elementos);
+          reducir_horas_de_manejo(ciudades, cantidad_elementos);
           break;
       }
-      case 4: {
+      case 4:
           break;
-      }
       default:{
         printf ("La opcion ingresada es incorrecta");
         break;
@@ -112,8 +106,6 @@ int main(int argc, char* args[]) {
     }
 
     liberar_ciudades(ciudades, cantidad_elementos);
-
-
 
     return 0;
 }
