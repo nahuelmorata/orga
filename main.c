@@ -102,15 +102,8 @@ int main(int argc, char* args[]) {
           }
         }
 
-        printf("Quiere volver a ejecutar? (y/n): ");
-        char respuesta;
-        scanf(" %c", &respuesta);
-        if (respuesta == 'n' || respuesta == 'N') {
-            opcion = 4;
-        } else {
-            printf("\n\n");
-            opcion = obtener_opcion();
-        }
+        printf("\n\n");
+        opcion = obtener_opcion();
     }
 
     liberar_ciudades(ciudades, cantidad_elementos);
@@ -131,5 +124,6 @@ int obtener_opcion() {
     printf("**************************************************\n");
     printf("Ingrese una opcion (1-4): ");
     scanf(" %d", &opcion);
+    printf("\n");
     return opcion;
 }
