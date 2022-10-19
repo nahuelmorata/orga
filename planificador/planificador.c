@@ -142,7 +142,7 @@ void reducir_horas_de_manejo(TCiudad arreglo_ciudades[], int cantidad){
         orden++;
     }
     free(copia_arreglo_ciudades);
-    printf("Total recorrido: %i.", (int) total_recorrido);
+    printf("Total recorrido: %i.\n", (int) total_recorrido);
 }
 
 TCiudad *clonar_ciudades(TCiudad ciudades[], int cantidad) {

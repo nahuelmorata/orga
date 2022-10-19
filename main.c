@@ -69,7 +69,7 @@ void liberar_ciudades(TCiudad ciudades[], int cantidad_elementos) {
     free(ciudades);
 }
 
-
+int obtener_opcion();
 
 int main(int argc, char* args[]) {
     if (argc < 2) {
@@ -80,32 +80,56 @@ int main(int argc, char* args[]) {
     int cantidad_elementos = 2;
     TCiudad *ciudades = leer_archivo(args[1], &cantidad_elementos);
 
-    int opcion;
-    printf("Menu \n 1...Mostrar ascendente \n 2...Mostrar descendente \n 3...Reducir horas de manejo \n 4...Salir \n");
-    scanf("%d", &opcion);
+    int opcion = obtener_opcion();
 
-    switch(opcion){
-      case 1:{
-          mostrar_ascendente(ciudades, cantidad_elementos);
-          break;
-      }
-      case 2:{
-          mostrar_descendente(ciudades, cantidad_elementos);
-          break;
-      }
-      case 3:{
-          reducir_horas_de_manejo(ciudades, cantidad_elementos);
-          break;
-      }
-      case 4:
-          break;
-      default:{
-        printf ("La opcion ingresada es incorrecta");
-        break;
-      }
+    while (opcion != 4) {
+        switch(opcion) {
+          case 1:{
+              mostrar_ascendente(ciudades, cantidad_elementos);
+              break;
+          }
+          case 2:{
+              mostrar_descendente(ciudades, cantidad_elementos);
+              break;
+          }
+          case 3:{
+              reducir_horas_de_manejo(ciudades, cantidad_elementos);
+              break;
+          }
+          default:{
+            printf("La opcion ingresada es incorrecta\n");
+            break;
+          }
+        }
+
+        printf("Quiere volver a ejecutar? (y/n): ");
+        char respuesta;
+        scanf(" %c", &respuesta);
+        if (respuesta == 'n' || respuesta == 'N') {
+            opcion = 4;
+        } else {
+            printf("\n\n");
+            opcion = obtener_opcion();
+        }
     }
 
     liberar_ciudades(ciudades, cantidad_elementos);
 
     return 0;
+}
+
+int obtener_opcion() {
+    int opcion;
+    printf("**************************************************\n");
+    printf("|                                                |\n");
+    printf("| MENU:                                          |\n");
+    printf("| 1 - Mostrar Ascendente.                        |\n");
+    printf("| 2 - Mostrar Descendente.                       |\n");
+    printf("| 3 - Reducir horas de manejo.                   |\n");
+    printf("| 4 - Salir.                                     |\n");
+    printf("|                                                |\n");
+    printf("**************************************************\n");
+    printf("Ingrese una opcion (1-4): ");
+    scanf(" %d", &opcion);
+    return opcion;
 }
